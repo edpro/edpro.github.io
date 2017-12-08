@@ -1669,6 +1669,7 @@ var app;
             this.sprite.on("touchend", function (e) { return _this.handleMouse(e, _this.onRelease); });
             this.sprite.on("touchendoutside", function (e) { return _this.handleMouse(e, _this.onRelease); });
             this.sprite.on("mousemove", function (e) { return _this.handleMouse(e, null); });
+            this.sprite.on("touchmove", function (e) { return _this.handleMouse(e, null); });
         }
         DrawCanvas.prototype.endLine = function () {
             this.linePointSet = false;
