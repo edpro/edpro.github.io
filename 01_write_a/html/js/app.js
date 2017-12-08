@@ -1592,7 +1592,7 @@ var app;
                 app.playSound(label);
         };
         WritingGame.prototype.onPlayClick = function () {
-            if (this.anim.state == AnimState.COMPLETED) {
+            if (this.anim.state == AnimState.COMPLETED || this.anim.state == AnimState.IDLE) {
                 this.anim.stop();
                 this.canvas.clear();
             }
@@ -1626,10 +1626,10 @@ var app;
             if (p == null)
                 this.canvas.endLine();
             else
-                this.canvas.drawLine(p);
+                this.canvas.drawLine(p, 6);
         };
         WritingGame.prototype.updateDrawing = function () {
-            this.canvas.drawLine(this.canvas.mousePos);
+            this.canvas.drawLine(this.canvas.mousePos, 10);
         };
         WritingGame.prototype.onCanvasPress = function () {
             if (this.anim.state == AnimState.IDLE)
@@ -1674,22 +1674,24 @@ var app;
         DrawCanvas.prototype.endLine = function () {
             this.linePointSet = false;
         };
-        DrawCanvas.prototype.drawLine = function (globalPos) {
+        DrawCanvas.prototype.drawLine = function (globalPos, lineWidth) {
             var c = this.getContext();
             var prevPos = this.linePoint;
             var nextPos = this.sprite.toLocal(globalPos);
             c.lineCap = 'round';
             c.strokeStyle = "#5200ff";
-            c.lineWidth = 6 * this.dpiScale;
+            c.lineWidth = lineWidth * this.dpiScale;
             if (this.linePointSet) {
                 c.beginPath();
                 c.moveTo(prevPos.x, prevPos.y);
                 c.lineTo(nextPos.x, nextPos.y);
                 c.stroke();
+                prevPos.copy(nextPos);
             }
-            this.linePointSet = true;
-            prevPos.x = nextPos.x;
-            prevPos.y = nextPos.y;
+            else {
+                this.linePointSet = true;
+                prevPos.copy(nextPos);
+            }
         };
         DrawCanvas.prototype.clear = function () {
             this.getContext()
@@ -1745,7 +1747,9 @@ var app;
                 : null;
         };
         Object.defineProperty(LetterAnim.prototype, "state", {
-            get: function () { return this._state; },
+            get: function () {
+                return this._state;
+            },
             enumerable: true,
             configurable: true
         });
