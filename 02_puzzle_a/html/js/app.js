@@ -1847,7 +1847,6 @@ var app;
                     part.move(part.initialPos, true);
                 }
                 app.playSound("win");
-                this.winAnim.animation.ticksPerFrame = 2;
                 this.winAnim.animation.playFromBeginToEnd();
             }
         };
