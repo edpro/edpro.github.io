@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "out": "html/js/app.js",
+    "target": "es5",
+    "sourceMap": true,
+    "removeComments": true,
+    "noImplicitAny": true
+  },
+  "files": ["../../src/App.ts"]
+}
