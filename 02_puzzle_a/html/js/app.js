@@ -1812,14 +1812,16 @@ var app;
         };
         PuzzleGame.prototype.onTickEvent = function () {
             if (this.draggedPart != null) {
-                this.draggedPart.sprite.position.x = this.draggedPart.mousePos.x - this.draggedOffset.x;
-                this.draggedPart.sprite.position.y = this.draggedPart.mousePos.y - this.draggedOffset.y;
+                var localPos = this.content.toLocal(this.draggedPart.mousePos);
+                this.draggedPart.sprite.position.x = localPos.x - this.draggedOffset.x;
+                this.draggedPart.sprite.position.y = localPos.y - this.draggedOffset.y;
             }
         };
         PuzzleGame.prototype.onPartPress = function (part) {
             this.draggedPart = part;
-            this.draggedOffset.x = part.mousePos.x - part.sprite.position.x;
-            this.draggedOffset.y = part.mousePos.y - part.sprite.position.y;
+            this.draggedOffset = this.content.toLocal(part.mousePos);
+            this.draggedOffset.x -= part.sprite.position.x;
+            this.draggedOffset.y -= part.sprite.position.y;
             this.draggedPart.sprite.currentFrame = 1;
             this.content.setChildIndex(this.draggedPart.sprite, this.content.children.length - 1);
         };
