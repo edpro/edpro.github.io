@@ -262,9 +262,9 @@ var fl;
             var isLoopExit = (this._innerCond == 0)
                 || Animation.signals[this._innerCond] == 1;
             if (isLoopExit) {
-                this._target.stepForward();
                 this._innerCond = undefined;
                 this._innerJump = undefined;
+                this._target.stepForward();
                 return;
             }
             var isWaiting = this._innerJump === this._target.currentFrame;
@@ -1254,7 +1254,7 @@ var fl;
     var Text = (function (_super) {
         __extends(Text, _super);
         function Text(text, style) {
-            _super.call(this, text, style);
+            _super.call(this, text, style, window.devicePixelRatio);
             this.timelineIndex = -1;
             this.color = new fl.Color(1, 1, 1, 1);
             this.isFlashObject = true;
@@ -1391,43 +1391,18 @@ var app;
             this.name = "AppScreen";
             this._size = new PIXI.Point();
             this._anchors = [];
-            this._bindings = {};
             this.name = name;
         }
         AppScreen.prototype.initialize = function () {
+            this.createContent();
             this.onInitialize();
         };
         AppScreen.prototype.onInitialize = function () { };
-        AppScreen.prototype.bindItem = function (prefix, action) {
-            this._bindings[prefix] = action;
-        };
         AppScreen.prototype.createButton = function (name, action) {
             return new fl.Button(this.content.getElement(name), action.bind(this));
         };
-        AppScreen.prototype.configureBindings = function () {
-            var _this = this;
-            this.content.forEachRecursive(function (it) {
-                if (_this.isInitialized(it))
-                    return;
-                else
-                    _this.setInitialized(it);
-                if (_this.applyBinding(it))
-                    return;
-            });
-        };
-        AppScreen.prototype.applyBinding = function (item) {
-            if (!item.isFrameObject || !item.name)
-                return false;
-            for (var key in this._bindings) {
-                if (item.name.indexOf(key) == 0) {
-                    this._bindings[key](item);
-                    return true;
-                }
-            }
-            return false;
-        };
-        AppScreen.prototype.createContent = function (path) {
-            this.content = fl.Bundle.createClip(path);
+        AppScreen.prototype.createContent = function () {
+            this.content = fl.Bundle.createClip(app.bundleId + "/scene");
             this._size.x = app.WIDTH;
             this._size.y = app.HEIGHT;
             this._reserve = Math.abs(this.content.getChildAt(0).x);
@@ -1435,7 +1410,6 @@ var app;
             this.configureContent();
         };
         AppScreen.prototype.configureContent = function () {
-            this.configureBindings();
             this.configureAutoPlay(this.content);
         };
         AppScreen.prototype.configureLayout = function () {
@@ -1556,37 +1530,40 @@ var app;
             this._size.y = y;
             this.validateLayout();
         };
-        AppScreen.prototype.isInitialized = function (item) {
-            return item.hasOwnProperty("__INITIALIZED__");
-        };
-        AppScreen.prototype.setInitialized = function (item) {
-            item["__INITIALIZED__"] = true;
-        };
         return AppScreen;
     }());
     app.AppScreen = AppScreen;
 })(app || (app = {}));
 var app;
 (function (app) {
-    var CLIP_NAME = "pointer";
     var TICKS_PER_FRAME = 2;
+    var REPEAT_MODE = true;
     var WritingGame = (function (_super) {
         __extends(WritingGame, _super);
         function WritingGame() {
             _super.call(this, "WritingGame");
             this.isDrawing = false;
             this.lastSound = "none";
+            this.isRepeating = false;
         }
         WritingGame.prototype.onInitialize = function () {
             var _this = this;
-            this.createContent(app.BUNDLE_ID + "/scene");
-            this.anim = new LetterAnim(this.content);
+            this.anim = [
+                new LetterAnim(this.content, "pointer_0"),
+                new LetterAnim(this.content, "pointer_1")
+            ];
             this.canvas = new DrawCanvas(this.content);
             this.canvas.onPress = function () { return _this.onCanvasPress(); };
             this.canvas.onRelease = function () { return _this.onCanvasRelease(); };
-            this.btnPlay = this.createButton("btn_play", this.onPlayClick);
+            this.btnPlay = [
+                this.createButton("btn_play_0", function () { return _this.onPlayClick(0); }),
+                this.createButton("btn_play_1", function () { return _this.onPlayClick(1); })
+            ];
+            this.btnPause = [
+                this.createButton("btn_pause_0", function () { return _this.onPauseClick(0); }),
+                this.createButton("btn_pause_1", function () { return _this.onPauseClick(1); })
+            ];
             this.btnStop = this.createButton("btn_stop", this.onStopClick);
-            this.btnPause = this.createButton("btn_pause", this.onPauseClick);
             this.refresh();
             PIXI.ticker.shared.add(this.onTickEvent, this);
             fl.onFrameLabel = function (t, l) { return _this.onFrameLabel(t, l); };
@@ -1595,44 +1572,71 @@ var app;
         WritingGame.prototype.onFrameLabel = function (target, label) {
             if (label.indexOf("s_") == 0) {
                 this.lastSound = label;
-                app.playSound(label);
+                if (!this.isRepeating)
+                    app.playSound(label);
             }
             else if (label == "#wait_snd" && !app.isSoundPlaying(this.lastSound)) {
                 fl.Animation.sendSignal("snd");
             }
         };
-        WritingGame.prototype.onPlayClick = function () {
-            if (this.anim.state == AnimState.COMPLETED || this.anim.state == AnimState.IDLE) {
-                this.anim.stop();
+        WritingGame.prototype.onPlayClick = function (num) {
+            if (num == 0 && this.anim[1].state != AnimState.IDLE) {
+                this.anim[1].stop();
                 this.canvas.clear();
             }
-            this.anim.play();
+            if (num == 1 && this.anim[0].state != AnimState.IDLE) {
+                this.anim[0].stop();
+                this.canvas.clear();
+            }
+            if (this.anim[num].state == AnimState.COMPLETED || this.anim[num].state == AnimState.IDLE) {
+                this.anim[num].stop();
+                this.canvas.clear();
+            }
+            this.anim[num].play();
             this.refresh();
+            this.isRepeating = false;
         };
         WritingGame.prototype.onStopClick = function () {
             app.stopSound();
             this.canvas.clear();
-            this.anim.stop();
+            this.anim[0].stop();
+            this.anim[1].stop();
             this.refresh();
         };
-        WritingGame.prototype.onPauseClick = function () {
+        WritingGame.prototype.onPauseClick = function (num) {
             app.stopSound();
-            this.anim.pause();
+            this.anim[num].pause();
             this.refresh();
         };
         WritingGame.prototype.refresh = function () {
-            this.btnPlay.content.visible = this.anim.state != AnimState.PLAYING;
-            this.btnPause.content.visible = this.anim.state == AnimState.PLAYING;
+            this.btnPlay[0].content.visible = this.anim[0].state != AnimState.PLAYING;
+            this.btnPlay[1].content.visible = this.anim[1].state != AnimState.PLAYING;
+            this.btnPause[0].content.visible = this.anim[0].state == AnimState.PLAYING;
+            this.btnPause[1].content.visible = this.anim[1].state == AnimState.PLAYING;
         };
         WritingGame.prototype.onTickEvent = function () {
-            if (this.anim.state == AnimState.PLAYING)
-                this.updateAnim();
+            if (this.anim[0].state == AnimState.PLAYING)
+                this.updateAnim(0);
+            else if (this.anim[1].state == AnimState.PLAYING)
+                this.updateAnim(1);
             else if (this.isDrawing)
                 this.updateDrawing();
+            if (REPEAT_MODE) {
+                if (this.anim[0].state == AnimState.COMPLETED) {
+                    this.anim[0].play();
+                    this.canvas.clear();
+                    this.isRepeating = true;
+                }
+                if (this.anim[1].state == AnimState.COMPLETED) {
+                    this.anim[1].play();
+                    this.canvas.clear();
+                    this.isRepeating = true;
+                }
+            }
             this.refresh();
         };
-        WritingGame.prototype.updateAnim = function () {
-            var p = this.anim.getPointerGlobalPos();
+        WritingGame.prototype.updateAnim = function (num) {
+            var p = this.anim[num].getPointerGlobalPos();
             if (p == null)
                 this.canvas.endLine();
             else
@@ -1642,7 +1646,7 @@ var app;
             this.canvas.drawLine(this.canvas.mousePos, 10);
         };
         WritingGame.prototype.onCanvasPress = function () {
-            if (this.anim.state == AnimState.IDLE)
+            if (this.anim[0].state == AnimState.IDLE && this.anim[1].state == AnimState.IDLE)
                 this.isDrawing = true;
         };
         WritingGame.prototype.onCanvasRelease = function () {
@@ -1726,10 +1730,10 @@ var app;
         AnimState[AnimState["COMPLETED"] = 3] = "COMPLETED";
     })(AnimState || (AnimState = {}));
     var LetterAnim = (function () {
-        function LetterAnim(content) {
+        function LetterAnim(content, name) {
             var _this = this;
             this._state = AnimState.IDLE;
-            this._clip = content.getElement(CLIP_NAME);
+            this._clip = content.getElement(name);
             this._clip.animation.onComplete(function () { return _this._state = AnimState.COMPLETED; });
             this._clip.visible = false;
             this._clip.animation.ticksPerFrame = TICKS_PER_FRAME;
@@ -1797,9 +1801,8 @@ var app;
         }
         PuzzleGame.prototype.onInitialize = function () {
             var _this = this;
-            this.createContent(app.BUNDLE_ID + "/scene");
             this.winAnim = this.content.getElement("win_anim");
-            this.btnReplay = this.createButton("btn_replay", this.onRelayClick);
+            this.btnReplay = this.createButton("btn_replay", this.onReplayClick);
             var posSprites = this.content.findAllByPrefix("random_pos");
             for (var _i = 0, posSprites_1 = posSprites; _i < posSprites_1.length; _i++) {
                 var sprite = posSprites_1[_i];
@@ -1858,13 +1861,15 @@ var app;
                     var part = _c[_b];
                     part.move(part.initialPos, true);
                 }
-                app.playSound("win");
+                app.playRandomSound(['win1', 'win2', 'win3']);
+                this.winAnim.visible = true;
                 this.winAnim.animation.playFromBeginToEnd();
             }
         };
-        PuzzleGame.prototype.onRelayClick = function () {
+        PuzzleGame.prototype.onReplayClick = function () {
             this.randomazeParts(true);
-            this.winAnim.gotoFirstFrame();
+            this.winAnim.visible = false;
+            this.winAnim.animation.gotoAndStop(0);
             app.stopSound();
         };
         PuzzleGame.prototype.randomazeParts = function (animate) {
@@ -1912,9 +1917,143 @@ var app;
 })(app || (app = {}));
 var app;
 (function (app) {
+    var ColorGame = (function (_super) {
+        __extends(ColorGame, _super);
+        function ColorGame() {
+            _super.call(this, "ColorGame");
+            this.positions = [];
+            this.buttons = [];
+            this.items = [];
+        }
+        ColorGame.prototype.onInitialize = function () {
+            var _this = this;
+            this.winAnim = this.content.getElement("win_anim");
+            this.winAnim.visible = false;
+            this.btnReplay = this.createButton("btn_replay", this.onReplayClick);
+            this.initColorButtons();
+            this.initColorItems();
+            this.randomaze(false);
+            fl.onFrameLabel = function (t, l) { return _this.onFrameLabel(t, l); };
+            app.playSound("title");
+            this.buttons.sort(function (a, b) { return a.name.localeCompare(b.name); });
+            this.selectButton(this.buttons[0]);
+        };
+        ColorGame.prototype.initColorButtons = function () {
+            var _this = this;
+            this.buttons = this.content.findAllByPrefix("btn_c");
+            var _loop_2 = function() {
+                var btn = this_2.buttons[i];
+                btn.buttonMode = true;
+                btn.interactive = true;
+                btn.on("mousedown", function () { return _this.selectButton(btn); });
+                btn.on("touchstart", function () { return _this.selectButton(btn); });
+            };
+            var this_2 = this;
+            for (var i = 0; i < this.buttons.length; i++) {
+                _loop_2();
+            }
+        };
+        ColorGame.prototype.initColorItems = function () {
+            var _this = this;
+            var children = this.content.findAllByPrefix("item_c");
+            for (var i = 0; i < children.length; i++) {
+                var item = new ColorItem(children[i]);
+                item.pressHandler = function (it) { return _this.applyColor(it); };
+                this.items.push(item);
+                this.positions.push(item.sprite.position.clone());
+            }
+        };
+        ColorGame.prototype.selectButton = function (btn) {
+            if (this.selectedButton)
+                this.selectedButton.currentFrame = 0;
+            this.selectedButton = btn;
+            this.selectedButton.currentFrame = 1;
+        };
+        ColorGame.prototype.applyColor = function (item) {
+            item.fill(this.selectedButton);
+            this.checkItemColors();
+        };
+        ColorGame.prototype.onFrameLabel = function (target, label) {
+            if (label.indexOf("s_") == 0)
+                app.playSound(label);
+        };
+        ColorGame.prototype.checkItemColors = function () {
+            for (var i = 0; i < this.items.length; i++) {
+                var item = this.items[i];
+                if (item.expectedColor != item.actualColor)
+                    return;
+            }
+            this.winAnim.visible = true;
+            this.winAnim.animation.playFromBeginToEnd();
+            app.playRandomSound(['win1', 'win2', 'win3']);
+        };
+        ColorGame.prototype.onReplayClick = function () {
+            this.randomaze(true);
+            this.winAnim.animation.gotoAndStop(0);
+            this.winAnim.visible = false;
+            app.stopSound();
+        };
+        ColorGame.prototype.randomaze = function (animate) {
+            ArrayUtil.shuffle(this.positions);
+            for (var i = 0; i < this.items.length; i++) {
+                this.items[i].move(this.positions[i], animate);
+                this.items[i].reset();
+            }
+        };
+        return ColorGame;
+    }(app.AppScreen));
+    app.ColorGame = ColorGame;
+    var ColorItem = (function () {
+        function ColorItem(sprite) {
+            this.sprite = sprite;
+            this.expectedColor = sprite.name.split("_")[1];
+            sprite.buttonMode = true;
+            sprite.interactive = true;
+            sprite.on("mousedown", this.handlePress, this);
+            sprite.on("touchstart", this.handlePress, this);
+        }
+        ColorItem.prototype.handlePress = function () {
+            if (this.pressHandler)
+                this.pressHandler(this);
+        };
+        ColorItem.prototype.move = function (pos, animate) {
+            if (animate) {
+                createjs.Tween.get(this.sprite)
+                    .to({ x: pos.x, y: pos.y }, 200);
+            }
+            else {
+                this.sprite.position.copy(pos);
+            }
+        };
+        ColorItem.prototype.reset = function () {
+            this.actualColor = "";
+            this.sprite.color.r = 1;
+            this.sprite.color.g = 1;
+            this.sprite.color.b = 1;
+            this.sprite.color.a = 1;
+        };
+        ColorItem.prototype.fill = function (source) {
+            var color = source.getChildByName("c_source").color;
+            this.sprite.color.setFrom(color);
+            this.actualColor = source.name.split("_")[1];
+            if (this.expectedColor == this.actualColor)
+                this.sprite.color.a = 1;
+            else
+                this.sprite.color.a = 0.5;
+            createjs.Tween.get(this.sprite)
+                .to({ scaleX: 1.1, scaleY: 1.1 }, 100)
+                .to({ scaleX: 1.0, scaleY: 1.0 }, 100);
+        };
+        return ColorItem;
+    }());
+})(app || (app = {}));
+var app;
+(function (app) {
+    app.GAME_PUZZLE = "puzzle";
+    app.GAME_WRITE = "write";
+    app.GAME_COLOR = "color";
     app.WIDTH = 800;
     app.HEIGHT = 600;
-    app.BUNDLE_ID = "bundle_id_not_set";
     app.STAGE_COLOR = 0xFFFFFF;
     app.FORCE_USE_CANVAS = true;
     app.SOUND_ENABLED = true;
@@ -1924,14 +2063,12 @@ var app;
     var _container;
     var _screen;
     var _debug;
-    function initialize(elementOrId) {
+    function initialize(gameId) {
         console.log("STAGE_COLOR: " + app.STAGE_COLOR);
         console.log("FORCE_USE_CANVAS: " + app.FORCE_USE_CANVAS);
         console.log(navigator.userAgent);
-        var container = (typeof elementOrId === "string")
-            ? document.getElementById(elementOrId)
-            : elementOrId;
-        _container = container || document.body;
+        app.bundleId = gameId;
+        _container = document.body;
         fl.Bundle.version = "" + Math.round(Math.random() * 1e6);
         createjs.Ticker.framerate = 60;
         initRenderer();
@@ -1956,13 +2093,15 @@ var app;
         setTimeout(function () { return _container.appendChild(_renderer.view); });
     }
     function loadGameScreen() {
-        fl.Bundle.load(app.BUNDLE_ID, function () {
-            if (app.BUNDLE_ID.indexOf("write_") == 0)
+        fl.Bundle.load(app.bundleId, function () {
+            if (app.bundleId == "write")
                 changeScreen(new app.WritingGame());
-            else if (app.BUNDLE_ID.indexOf("puzzle_") == 0)
+            else if (app.bundleId == "puzzle")
                 changeScreen(new app.PuzzleGame());
+            else if (app.bundleId == "color")
+                changeScreen(new app.ColorGame());
             else
-                throw ("Cannot determine game type: " + app.BUNDLE_ID);
+                throw ("Cannot determine game type: " + app.bundleId);
         });
     }
     function changeScreen(screen) {
@@ -2086,6 +2225,10 @@ var app;
         return (name in _playingMap);
     }
     app.isSoundPlaying = isSoundPlaying;
+    function playRandomSound(names) {
+        playSound(names[Math.floor(Math.random() * names.length)]);
+    }
+    app.playRandomSound = playRandomSound;
     function playSound(name) {
         if (!app.SOUND_ENABLED)
             return;
