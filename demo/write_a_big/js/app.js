@@ -1552,6 +1552,7 @@ var app;
             this.isDrawing = false;
             this.lastSound = "none";
             this.isRepeating = false;
+            this.mode = GameMode.NONE;
         }
         WritingOneGame.prototype.onInitialize = function () {
             var _this = this;
@@ -1561,7 +1562,10 @@ var app;
             this.canvas.onRelease = function () { return _this.onCanvasRelease(); };
             this.btnPlay = this.createButton("btn_play", function () { return _this.onPlayClick(); });
             this.btnPause = this.createButton("btn_pause", function () { return _this.onPauseClick(); });
-            this.btnStop = this.createButton("btn_stop", this.onStopClick);
+            this.btnDraw = this.createButton("btn_draw", this.onDrawClick);
+            this.btnClear = this.createButton("btn_clear", this.onClearClick);
+            this.modeAnim = this.content.getElement("mode_anim");
+            this.modeDraw = this.content.getElement("mode_draw");
             this.refresh();
             PIXI.ticker.shared.add(this.onTickEvent, this);
             fl.onFrameLabel = function (t, l) { return _this.onFrameLabel(t, l); };
@@ -1583,13 +1587,15 @@ var app;
                 this.canvas.clear();
             }
             this.anim.play();
-            this.refresh();
             this.isRepeating = false;
+            this.mode = GameMode.ANIM;
+            this.refresh();
         };
-        WritingOneGame.prototype.onStopClick = function () {
+        WritingOneGame.prototype.onDrawClick = function () {
             app.stopSound();
             this.canvas.clear();
             this.anim.stop();
+            this.mode = GameMode.DRAW;
             this.refresh();
         };
         WritingOneGame.prototype.onPauseClick = function () {
@@ -1597,9 +1603,17 @@ var app;
             this.anim.pause();
             this.refresh();
         };
+        WritingOneGame.prototype.onClearClick = function () {
+            this.canvas.clear();
+            this.refresh();
+        };
         WritingOneGame.prototype.refresh = function () {
             this.btnPlay.content.visible = this.anim.state != AnimState.PLAYING;
             this.btnPause.content.visible = this.anim.state == AnimState.PLAYING;
+            this.btnDraw.content.visible = this.mode != GameMode.DRAW;
+            this.btnClear.content.visible = this.mode == GameMode.DRAW;
+            this.modeAnim.currentFrame = this.mode == GameMode.ANIM ? 1 : 0;
+            this.modeDraw.currentFrame = this.mode == GameMode.DRAW ? 1 : 0;
         };
         WritingOneGame.prototype.onTickEvent = function () {
             if (this.anim.state == AnimState.PLAYING)
@@ -1626,7 +1640,7 @@ var app;
             this.canvas.drawLine(this.canvas.mousePos, 10);
         };
         WritingOneGame.prototype.onCanvasPress = function () {
-            if (this.anim.state == AnimState.IDLE)
+            if (this.mode == GameMode.DRAW)
                 this.isDrawing = true;
         };
         WritingOneGame.prototype.onCanvasRelease = function () {
@@ -1702,6 +1716,12 @@ var app;
         };
         return DrawCanvas;
     }());
+    var GameMode;
+    (function (GameMode) {
+        GameMode[GameMode["NONE"] = 0] = "NONE";
+        GameMode[GameMode["ANIM"] = 1] = "ANIM";
+        GameMode[GameMode["DRAW"] = 2] = "DRAW";
+    })(GameMode || (GameMode = {}));
     var AnimState;
     (function (AnimState) {
         AnimState[AnimState["IDLE"] = 0] = "IDLE";
