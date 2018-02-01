@@ -1720,8 +1720,8 @@ var app;
             canvasWidth = w0;
             canvasHeight = h0;
         }
-        canvasWidth = Math.floor(canvasWidth);
-        canvasHeight = Math.floor(canvasHeight);
+        canvasWidth = Math.min(Math.floor(canvasWidth), 1024);
+        canvasHeight = Math.min(Math.floor(canvasHeight), 768);
         var canvasX = Math.round(0.5 * (w0 - canvasWidth));
         var canvasY = Math.round(0.5 * (h0 - canvasHeight));
         var canvas = _renderer.view;
