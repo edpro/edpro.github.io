@@ -1720,8 +1720,8 @@ var app;
             canvasWidth = w0;
             canvasHeight = h0;
         }
-        canvasWidth = Math.min(Math.floor(canvasWidth), 1024);
-        canvasHeight = Math.min(Math.floor(canvasHeight), 768);
+        canvasWidth = Math.min(Math.floor(canvasWidth), 800);
+        canvasHeight = Math.min(Math.floor(canvasHeight), 600);
         var canvasX = Math.round(0.5 * (w0 - canvasWidth));
         var canvasY = Math.round(0.5 * (h0 - canvasHeight));
         var canvas = _renderer.view;
@@ -1735,7 +1735,7 @@ var app;
     function adjustResolution(width, height) {
         var max_w = 2048;
         var max_h = 1536;
-        var res = window.devicePixelRatio;
+        var res = Math.min(window.devicePixelRatio, 2);
         var w = width * res;
         var h = height * res;
         var k = Math.max(w / max_w, h / max_h);
