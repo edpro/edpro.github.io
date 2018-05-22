@@ -1,0 +1,22 @@
+
+#content {
+  /*background-color: burlywood;*/
+}
+
+.canvas-box {
+  width: 700px;
+  height: 300px;
+  position: relative;
+}
+
+.canvas-bg {
+  position: absolute;
+  width: 100%;
+}
+
+.canvas-el {
+  position: absolute;
+  width: 100%;
+}
+
+

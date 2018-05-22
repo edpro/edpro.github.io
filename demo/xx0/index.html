@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<meta charset="UTF-8">
+	<title>Writing</title>
+	<script src="js/howler-2.0.9/howler.min.js"></script>
+	<script src="js/tweenjs/tweenjs-0.6.2.min.js"></script>
+	<script src="js/pixi/pixi.min.js"></script>
+	<script src="js/app.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<link rel="stylesheet" type="text/css" href="css/writing.css">
+</head>
+
+<body>
+	<div id="content">
+		<div class="title">
+			<div class="title-text">Вчимося писати велику літеру <span class="title-letter">Ї</span></div>
+		</div>
+
+		<div class="canvas-box">
+			<img id="canvas_bg" class="canvas-bg" src="assets/writing/png/canvas_bg.png"/>
+			<canvas id="canvas_el" class="canvas-el" width="700" height="300"></canvas>
+			<canvas id="canvas_px" class="canvas-el" width="700" height="300"></canvas>
+		</div>
+
+		<div class="buttons">
+			<div class="btn-box">
+				<img id="img_play_on" class="fill-parent" style="visibility: hidden"
+					 src="assets/writing/png/mode_on.png">
+				<img id="img_play_off" class="fill-parent" src="assets/writing/png/mode_off.png">
+				<div id="btn_pause">
+					<img class="btn-img" src="assets/writing/png/btn_pause_2.png">
+					<img class="btn-img" src="assets/writing/png/btn_pause_1.png">
+				</div>
+				<div id="btn_play">
+					<img class="btn-img" src="assets/writing/png/btn_play_2.png">
+					<img class="btn-img" src="assets/writing/png/btn_play_1.png">
+				</div>
+			</div>
+			<div style="width:150px"></div>
+			<div class="btn-box">
+				<img id="img_draw_on" class="fill-parent" style="visibility: hidden"
+					 src="assets/writing/png/mode_on.png">
+				<img id="img_draw_off" class="fill-parent" src="assets/writing/png/mode_off.png">
+				<div id="btn_clear">
+					<img class="btn-img" src="assets/writing/png/btn_clear_2.png">
+					<img class="btn-img" src="assets/writing/png/btn_clear_1.png">
+				</div>
+				<div id="btn_draw">
+					<img class="btn-img" src="assets/writing/png/btn_draw_2.png">
+					<img class="btn-img" src="assets/writing/png/btn_draw_1.png">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		app.SOUND_ENABLED = false;
+		app.initialize(app.GAME_WRITING);
+	</script>
+
+</body>
+</html>
