@@ -9,6 +9,7 @@ var app;
     var _renderHeight = 0;
     var fps_el;
     var info_el;
+    var rendererInfo = "";
     function init() {
         fps_el = document.getElementById("fps_text");
         info_el = document.getElementById("info_text");
@@ -18,7 +19,7 @@ var app;
             autoStart: false,
             clearBeforeRender: false,
         });
-        info_el.innerText = app.pixi.renderer.gl || app.pixi.renderer.context;
+        rendererInfo = app.pixi.renderer.gl || app.pixi.renderer.context;
         document.body.appendChild(app.pixi.view);
         adjustSize();
         app.pixi.start();
@@ -83,7 +84,9 @@ var app;
             app.pixi.view.style.height = _canvasHeight + "px";
             if (_scene)
                 resizeScene();
-            console.log(`resize: ${_canvasWidth} x ${_canvasHeight} (${_renderWidth} x ${_renderHeight})`);
+            let sizeInfo = `${_canvasWidth} x ${_canvasHeight} (${_renderWidth} x ${_renderHeight}`;
+            console.log(`resize: ${sizeInfo}`);
+            info_el.innerText = `${sizeInfo} ${rendererInfo}`;
         }
     }
 })(app || (app = {}));
