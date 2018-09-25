@@ -1,0 +1,23 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #222;
+}
+
+.fps {
+  position: absolute;
+  font-family: monospace;
+  text-align: right;
+  color: #333;
+  right: 4px;
+}
+
+.info {
+  position: absolute;
+  font-family: serif;
+  font-size: 12px;
+  text-align: left;
+  color: #333;
+  left: 4px;
+}
