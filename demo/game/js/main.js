@@ -52,7 +52,7 @@ var app;
             if (_time[i] > max_time)
                 max_time = _time[i];
         }
-        fps_el.innerText = "av: " + (av_time / _time.length).toFixed(1) + " max: " + max_time;
+        fps_el.innerText = "av: " + (av_time / _time.length).toFixed(1) + "\nmax: " + max_time;
         _time.length = 0;
     }
     function onUpdate() {
@@ -76,17 +76,19 @@ var app;
             _renderHeight = _canvasHeight * resolution;
             if (_renderWidth > MAX_BUF) {
                 let k = MAX_BUF / _renderWidth;
-                _renderWidth = Math.round(_renderWidth * k);
-                _renderHeight = Math.round(_renderHeight * k);
+                _renderWidth = _renderWidth * k;
+                _renderHeight = _renderHeight * k;
             }
+            _renderWidth = Math.round(_renderWidth);
+            _renderHeight = Math.round(_renderHeight);
             app.pixi.renderer.resize(_renderWidth, _renderHeight);
             app.pixi.view.style.width = _canvasWidth + "px";
             app.pixi.view.style.height = _canvasHeight + "px";
             if (_scene)
                 resizeScene();
-            let sizeInfo = `${_canvasWidth} x ${_canvasHeight} (${_renderWidth} x ${_renderHeight}`;
+            let sizeInfo = `${_canvasWidth} x ${_canvasHeight} (${_renderWidth} x ${_renderHeight})`;
             console.log(`resize: ${sizeInfo}`);
-            info_el.innerText = `${sizeInfo} ${rendererInfo}`;
+            info_el.innerText = `${window.navigator.userAgent}\ndpi: ${dpi} ${sizeInfo} ${rendererInfo}`;
         }
     }
 })(app || (app = {}));
