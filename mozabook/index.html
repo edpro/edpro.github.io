@@ -36,6 +36,10 @@
 			<td class="value" id="max_time">0</td>
 		</tr>
 		<tr>
+			<td>update time delta</td>
+			<td class="value" id="delta_time">0</td>
+		</tr>
+		<tr>
 			<td>frame rate, fps</td>
 			<td class="value" id="fps">0</td>
 		</tr>
@@ -52,18 +56,18 @@
 		const info = document.getElementById("info");
 		const avg_el = document.getElementById("avg_time");
 		const max_el = document.getElementById("max_time");
+		const delta_el = document.getElementById("delta_time");
 		const fps_el = document.getElementById("fps");
 		const canvas_el = document.getElementById("canvas");
 		const context2d = canvas_el.getContext("2d");
 
 		info.innerText = window.navigator.userAgent;
 
-		const values = [];
-		const values_cnt = 30;
-		var prevTime = performance.now();
-		var maxUpdateTime = 0;
-		var drawEnabled = false;
-		
+		let drawEnabled = false;
+		let values_index = 0;
+		let values = new Int32Array(32);
+		let timestamp = new Int32Array(8); ;
+		timestamp[0] = performance.now();
 		requestAnimationFrame(update);
 
 		function update()
@@ -71,15 +75,17 @@
 			requestAnimationFrame(update);
 			
 			let curTime = performance.now();
-			let timeDiff = curTime - prevTime;
-			prevTime = curTime;
+			let timeDiff = curTime - timestamp[0];
+			timestamp[0] = curTime;
 
-			values.push(timeDiff)
+			values[values_index++] = timeDiff;
 			if (drawEnabled)
 				draw();
 
-			if (values.length < values_cnt)
+			if (values_index < values.length)
 				return;
+
+			values_index = 0;
 
 			let avg = 0;
 			let max = 0;
@@ -90,10 +96,18 @@
 					max = t;
 			}
 			avg /= values.length;
-			values.length = 0;
+
+			let delta = 0;
+			for (let i=0; i< values.length; i++) {
+				var t = values[i];
+				delta += Math.abs(t - avg);
+			}
+			delta /= values.length;
+
 
 			avg_el.innerText = avg.toFixed(1);
 			max_el.innerText = max.toFixed(1);
+			delta_el.innerText = delta.toFixed(1);
 			fps_el.innerText = (1000.0 / avg).toFixed();
 		}
 
@@ -112,7 +126,6 @@
 			context2d.fillStyle="#f00"
 			context2d.fillRect(v, v, canvas_el.width - v - v, canvas_el.height - v - v);
 		}
-
 	</script>
 </body>
 </html>
