@@ -24,11 +24,8 @@
 	</style>
 </head>
 <body>
+	<p id="info"></p>
 	<table>
-		<tr>
-			<td>browser</td>
-			<td id="info">0</td>
-		</tr>
 		<tr>
 			<td>update time avg, ms</td>
 			<td class="value" id="avg_time">0</td>
@@ -42,14 +39,13 @@
 			<td class="value" id="fps">0</td>
 		</tr>
 	</table>
-	<td></td>
 	<br>
 	<canvas id="canvas" width="32" height="32" style="border: 1px solid gray">
 	</canvas>
-	<br>
-	<br>
-	<input type="checkbox" id="draw_en" onchange="drawEnabled = !drawEnabled"/>
+	<p>
+	<input type="checkbox" id="draw_en" style="margin: 0" onchange="drawEnabled = !drawEnabled"/>
 	<label for="draw_en">Draw Enabled</label>
+	</p>
 	
 	<script>
 		const info = document.getElementById("info");
@@ -63,7 +59,7 @@
 
 		const values = [];
 		const values_cnt = 30;
-		var prevTime = Date.now();
+		var prevTime = performance.now();
 		var maxUpdateTime = 0;
 		var drawEnabled = false;
 		
@@ -73,7 +69,7 @@
 		{
 			requestAnimationFrame(update);
 			
-			let curTime = Date.now();
+			let curTime = performance.now();
 			let timeDiff = curTime - prevTime;
 			prevTime = curTime;
 
