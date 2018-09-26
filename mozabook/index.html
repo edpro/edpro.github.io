@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no">
+	<title>Repaint Performance Test</title>
+	<style>
+		body {
+			font-family: sans-serif;
+			font-size: 13px;
+			color: #555
+		}
+		table {
+			border-collapse: collapse;
+		}
+		td, th {
+			white-space: nowrap;
+			border: 1px solid;
+			padding: 4px;
+		}
+		.value {
+			font-family: Consolas, monospace
+		}
+	</style>
+</head>
+<body>
+	<table>
+		<tr>
+			<td>browser</td>
+			<td id="info">0</td>
+		</tr>
+		<tr>
+			<td>update time avg, ms</td>
+			<td class="value" id="avg_time">0</td>
+		</tr>
+		<tr>
+			<td>update time max, ms</td>
+			<td class="value" id="max_time">0</td>
+		</tr>
+		<tr>
+			<td>frame rate, fps</td>
+			<td class="value" id="fps">0</td>
+		</tr>
+	</table>
+	<td></td>
+	<br>
+	<canvas id="canvas" width="32" height="32" style="border: 1px solid gray">
+	</canvas>
+	<br>
+	<br>
+	<input type="checkbox" id="draw_en" onchange="drawEnabled = !drawEnabled"/>
+	<label for="draw_en">Draw Enabled</label>
+	
+	<script>
+		const info = document.getElementById("info");
+		const avg_el = document.getElementById("avg_time");
+		const max_el = document.getElementById("max_time");
+		const fps_el = document.getElementById("fps");
+		const canvas_el = document.getElementById("canvas");
+		const context2d = canvas_el.getContext("2d");
+
+		info.innerText = window.navigator.userAgent;
+
+		const values = [];
+		const values_cnt = 30;
+		var prevTime = Date.now();
+		var maxUpdateTime = 0;
+		var drawEnabled = false;
+		
+		requestAnimationFrame(update);
+
+		function update()
+		{
+			requestAnimationFrame(update);
+			
+			let curTime = Date.now();
+			let timeDiff = curTime - prevTime;
+			prevTime = curTime;
+
+			values.push(timeDiff)
+			if (drawEnabled)
+				draw();
+
+			if (values.length < values_cnt)
+				return;
+
+			let avg = 0;
+			let max = 0;
+			for (let i=0; i< values.length; i++) {
+				var t = values[i];
+				avg += t;
+				if (max < t)
+					max = t;
+			}
+			avg /= values.length;
+			values.length = 0;
+
+			avg_el.innerText = avg.toFixed(1);
+			max_el.innerText = max.toFixed(1);
+			fps_el.innerText = (1000.0 / avg).toFixed();
+		}
+
+		var s = 1;
+		var v = 0;
+
+		function draw()
+		{
+			v += s;
+			if (v > 16 || v < 1)
+				s *= -1
+
+			context2d.fillStyle="#fff"
+			context2d.fillRect(0, 0, canvas_el.width, canvas_el.height);
+
+			context2d.fillStyle="#f00"
+			context2d.fillRect(v, v, canvas_el.width - v - v, canvas_el.height - v - v);
+		}
+
+	</script>
+</body>
+</html>
