@@ -86,7 +86,7 @@ var app;
             app.pixi.view.style.height = _canvasHeight + "px";
             if (_scene)
                 resizeScene();
-            let sizeInfo = `${_canvasWidth} x ${_canvasHeight} (${_renderWidth} x ${_renderHeight})`;
+            let sizeInfo = `[${_canvasWidth} x ${_canvasHeight}] (${_renderWidth} x ${_renderHeight})`;
             console.log(`resize: ${sizeInfo}`);
             info_el.innerText = `${window.navigator.userAgent}\ndpi: ${dpi} ${sizeInfo} ${rendererInfo}`;
         }
