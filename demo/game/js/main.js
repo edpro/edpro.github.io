@@ -71,7 +71,7 @@ var app;
             _canvasWidth = Math.max(w, 400);
             _canvasHeight = Math.min(h, w);
             let dpi = window.devicePixelRatio;
-            let resolution = Math.max(dpi, 2.0);
+            let resolution = Math.min(dpi, 2.0);
             _renderWidth = _canvasWidth * resolution;
             _renderHeight = _canvasHeight * resolution;
             if (_renderWidth > MAX_BUF) {
