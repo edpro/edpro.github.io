@@ -6,6 +6,7 @@
 	<title>Repaint Performance Test</title>
 	<style>
 		body {
+			margin: 16px;
 			font-family: sans-serif;
 			font-size: 13px;
 			color: #555
@@ -43,10 +44,10 @@
 	<canvas id="canvas" width="32" height="32" style="border: 1px solid gray">
 	</canvas>
 	<p>
-	<input type="checkbox" id="draw_en" style="margin: 0" onchange="drawEnabled = !drawEnabled"/>
+	<input type="checkbox" id="draw_en" style="margin-left: 0" onchange="drawEnabled = !drawEnabled"/>
 	<label for="draw_en">Draw Enabled</label>
 	</p>
-	
+
 	<script>
 		const info = document.getElementById("info");
 		const avg_el = document.getElementById("avg_time");
