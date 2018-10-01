@@ -1,3 +1,16 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var app;
 (function (app) {
     var _scene;
@@ -51,15 +64,15 @@ var app;
     var _last = Date.now();
     var _time = [];
     function updateStats() {
-        let now = Date.now();
-        let t = now - _last;
+        var now = Date.now();
+        var t = now - _last;
         _last = now;
         _time.push(t);
         if (_time.length < 30)
             return;
-        let av_time = 0;
-        let max_time = 0;
-        for (let i = 0; i < _time.length; i++) {
+        var av_time = 0;
+        var max_time = 0;
+        for (var i = 0; i < _time.length; i++) {
             av_time += _time[i];
             if (_time[i] > max_time)
                 max_time = _time[i];
@@ -74,20 +87,20 @@ var app;
             _scene.update();
     }
     function adjustSize() {
-        const MAX_BUF = 1920;
-        let w = window.innerWidth;
-        let h = window.innerHeight;
+        var MAX_BUF = 1920;
+        var w = window.innerWidth;
+        var h = window.innerHeight;
         if (w != _windowWidth || h != _windowHeight) {
             _windowWidth = w;
             _windowHeight = h;
             _canvasWidth = Math.max(w, 400);
             _canvasHeight = Math.min(h, w);
-            let dpi = window.devicePixelRatio;
-            let resolution = Math.min(dpi, 2.0);
+            var dpi = window.devicePixelRatio;
+            var resolution = Math.min(dpi, 2.0);
             _renderWidth = _canvasWidth * resolution;
             _renderHeight = _canvasHeight * resolution;
             if (_renderWidth > MAX_BUF) {
-                let k = MAX_BUF / _renderWidth;
+                var k = MAX_BUF / _renderWidth;
                 _renderWidth = _renderWidth * k;
                 _renderHeight = _renderHeight * k;
             }
@@ -98,30 +111,30 @@ var app;
             app.pixi.view.style.height = _canvasHeight + "px";
             if (_scene)
                 resizeScene();
-            let sizeInfo = `[${_canvasWidth} x ${_canvasHeight}] (${_renderWidth} x ${_renderHeight})`;
-            console.log(`resize: ${sizeInfo}`);
-            info_el.innerText = `${window.navigator.userAgent}\ndpi: ${dpi} ${sizeInfo} ${rendererInfo}`;
+            var sizeInfo = "[" + _canvasWidth + " x " + _canvasHeight + "] (" + _renderWidth + " x " + _renderHeight + ")";
+            console.log("resize: " + sizeInfo);
+            info_el.innerText = window.navigator.userAgent + "\ndpi: " + dpi + " " + sizeInfo + " " + rendererInfo;
         }
     }
 })(app || (app = {}));
 var app;
 (function (app) {
-    const BASE_WIDTH = 1024;
-    const BASE_HEIGHT = 768;
-    class Demo {
-        constructor() {
+    var BASE_WIDTH = 1024;
+    var BASE_HEIGHT = 768;
+    var Demo = (function () {
+        function Demo() {
             this.speed = 4;
             this.width = BASE_WIDTH;
             this.height = BASE_HEIGHT;
             this.places = [];
         }
-        init() {
+        Demo.prototype.init = function () {
             this.bg = fl.Bundle.createSprite("demo/bg");
             app.pixi.stage.addChild(this.bg);
             this.hero = fl.Bundle.createSprite("demo/hero");
             app.pixi.stage.addChild(this.hero);
-            for (let i = 0; i < 3; i++) {
-                let place = fl.Bundle.createSprite("demo/ground");
+            for (var i = 0; i < 3; i++) {
+                var place = fl.Bundle.createSprite("demo/ground");
                 app.pixi.stage.addChild(place);
                 this.places.push(place);
             }
@@ -129,44 +142,45 @@ var app;
             this.sprite.x = 200;
             this.sprite.y = 200;
             app.pixi.stage.addChild(this.sprite);
-        }
-        update() {
+        };
+        Demo.prototype.update = function () {
             this.sprite.x += this.speed;
             if (this.speed > 0 && this.sprite.x > 400)
                 this.speed = -this.speed;
             if (this.speed < 0 && this.sprite.x < 200)
                 this.speed = -this.speed;
-            for (let i = 0; i < 3; i++) {
-                let place = this.places[i];
+            for (var i = 0; i < 3; i++) {
+                var place = this.places[i];
                 place.x = 500 + i * 300 - this.sprite.x;
                 place.y = this.height;
             }
             this.hero.x = 200;
             this.hero.y = this.height - 200 - this.sprite.x;
-        }
-        resize(width, height) {
+        };
+        Demo.prototype.resize = function (width, height) {
             this.width = width;
             this.height = height;
             this.bg.width = width;
             this.bg.height = height;
-        }
-    }
+        };
+        return Demo;
+    }());
     app.Demo = Demo;
 })(app || (app = {}));
 function jsx(tag, attrs, children) {
-    let element = document.createElement(tag);
-    for (let name in attrs) {
-        if (name && attrs.hasOwnProperty(name)) {
-            let value = attrs[name];
+    var element = document.createElement(tag);
+    for (var name_1 in attrs) {
+        if (name_1 && attrs.hasOwnProperty(name_1)) {
+            var value = attrs[name_1];
             if (value === true)
-                element.setAttribute(name, name);
+                element.setAttribute(name_1, name_1);
             else if (value !== false && value != null)
-                element.setAttribute(name, value.toString());
+                element.setAttribute(name_1, value.toString());
         }
     }
-    for (let i = 2; i < arguments.length; i++) {
-        let child = arguments[i];
-        let childNode = child.nodeType == null
+    for (var i = 2; i < arguments.length; i++) {
+        var child = arguments[i];
+        var childNode = child.nodeType == null
             ? document.createTextNode(child.toString())
             : child;
         element.appendChild(childNode);
@@ -175,8 +189,9 @@ function jsx(tag, attrs, children) {
 }
 var fl;
 (function (fl) {
-    class Anchor {
-        constructor(source, sourceProperty, target, targetProperty, multiplier = 1.0) {
+    var Anchor = (function () {
+        function Anchor(source, sourceProperty, target, targetProperty, multiplier) {
+            if (multiplier === void 0) { multiplier = 1.0; }
             this._target = target;
             this._targetProperty = targetProperty;
             this._source = source;
@@ -184,16 +199,19 @@ var fl;
             this._multiplier = multiplier;
             this._distance = source[sourceProperty] * multiplier - target[targetProperty];
         }
-        apply() {
+        Anchor.prototype.apply = function () {
             this._target[this._targetProperty] = this._source[this._sourceProperty] * this._multiplier - this._distance;
-        }
-    }
+        };
+        return Anchor;
+    }());
     fl.Anchor = Anchor;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class Internal {
-        static dispatchLabels(target) {
+    var Internal = (function () {
+        function Internal() {
+        }
+        Internal.dispatchLabels = function (target) {
             var n = target.labels.length;
             if (n == 0)
                 return;
@@ -207,8 +225,8 @@ var fl;
                         fl.onFrameLabel(target, label);
                 }
             }
-        }
-        static applyColor(target) {
+        };
+        Internal.applyColor = function (target) {
             var lc = target.color;
             var parent = target.parent;
             if (parent && parent.isFlashObject) {
@@ -226,17 +244,18 @@ var fl;
             }
             target.tint = 255 * r << 16 | 255 * g << 8 | 255 * b;
             target.alpha = a;
-        }
-        static clampRange(value, min, max) {
+        };
+        Internal.clampRange = function (value, min, max) {
             if (value < min)
                 return min;
             else if (value > max)
                 return max;
             else
                 return value;
-        }
-    }
-    Internal.EMPTY_ARRAY = [];
+        };
+        Internal.EMPTY_ARRAY = [];
+        return Internal;
+    }());
     fl.Internal = Internal;
 })(fl || (fl = {}));
 var PIXI;
@@ -273,7 +292,7 @@ var PIXI;
         return result;
     };
     PIXI.Container.prototype.findAllByPrefix = function (prefix) {
-        return this.findAll(it => (it.name || "").indexOf(prefix) == 0);
+        return this.findAll(function (it) { return (it.name || "").indexOf(prefix) == 0; });
     };
     PIXI.Container.prototype.findByPath = function (path) {
         var parts = path.split('/');
@@ -292,7 +311,8 @@ var PIXI;
     };
     PIXI.Container.prototype.findByResource = function (prefix) {
         var result = [];
-        for (let child of this.children) {
+        for (var _i = 0, _a = this.children; _i < _a.length; _i++) {
+            var child = _a[_i];
             if (!child.isFrameObject)
                 continue;
             var obj = child;
@@ -302,14 +322,14 @@ var PIXI;
         return result;
     };
     PIXI.Container.prototype.playAllChildren = function () {
-        this.children.forEach((it) => {
+        this.children.forEach(function (it) {
             var animable = it;
             if (animable.totalFrames > 1)
                 animable.animation.play();
         });
     };
     PIXI.Container.prototype.stopAllChildren = function () {
-        this.children.forEach((it) => {
+        this.children.forEach(function (it) {
             var animable = it;
             if (animable.totalFrames > 1)
                 animable.animation.stop();
@@ -318,50 +338,63 @@ var PIXI;
 })(PIXI || (PIXI = {}));
 var fl;
 (function (fl) {
-    class Color {
-        constructor(r, g, b, a) {
+    var Color = (function () {
+        function Color(r, g, b, a) {
             this.r = r;
             this.g = g;
             this.b = b;
             this.a = a;
         }
-        static fromNum(value) {
+        Color.fromNum = function (value) {
             var r = (value & 0xFF0000) >> 16;
             var g = (value & 0x00FF00) >> 8;
             var b = (value & 0x0000FF);
             return new Color(r / 255.0, g / 255.0, b / 255.0, 1);
-        }
-        clone() {
+        };
+        Color.prototype.clone = function () {
             return new Color(this.r, this.g, this.b, this.a);
-        }
-        setTo(value) {
+        };
+        Color.prototype.setTo = function (value) {
             value.r = this.r;
             value.g = this.g;
             value.b = this.b;
             value.a = this.a;
-        }
-        setFrom(value) {
+        };
+        Color.prototype.setFrom = function (value) {
             this.r = value.r;
             this.g = value.g;
             this.b = value.b;
             this.a = value.a;
-        }
-    }
+        };
+        return Color;
+    }());
     fl.Color = Color;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class FlashObject extends PIXI.Container {
-    }
+    var FlashObject = (function (_super) {
+        __extends(FlashObject, _super);
+        function FlashObject() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return FlashObject;
+    }(PIXI.Container));
     fl.FlashObject = FlashObject;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class FrameLabel {
-    }
+    var FrameLabel = (function () {
+        function FrameLabel() {
+        }
+        return FrameLabel;
+    }());
     fl.FrameLabel = FrameLabel;
-    class FrameObject extends fl.FlashObject {
-        gotoLabel(label) {
+    var FrameObject = (function (_super) {
+        __extends(FrameObject, _super);
+        function FrameObject() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        FrameObject.prototype.gotoLabel = function (label) {
             var n = this.labels.length;
             for (var i = 0; i < n; i++) {
                 if (this.labels[i].name == label) {
@@ -370,95 +403,114 @@ var fl;
                 }
             }
             return false;
-        }
-        stepForward() {
+        };
+        FrameObject.prototype.stepForward = function () {
             if (this.currentFrame + 1 < this.totalFrames)
                 this.currentFrame = this.currentFrame + 1;
             else
                 this.currentFrame = 0;
             return this;
-        }
-        stepBackward() {
+        };
+        FrameObject.prototype.stepBackward = function () {
             if (this.currentFrame > 0)
                 this.currentFrame = this.currentFrame - 1;
             else
                 this.currentFrame = this.totalFrames - 1;
             return this;
-        }
-        gotoNextFrame() {
+        };
+        FrameObject.prototype.gotoNextFrame = function () {
             if (this.currentFrame + 1 < this.totalFrames)
                 this.currentFrame = this.currentFrame + 1;
             return this;
-        }
-        gotoPrevFrame() {
+        };
+        FrameObject.prototype.gotoPrevFrame = function () {
             if (this.currentFrame > 0)
                 this.currentFrame = this.currentFrame - 1;
             return this;
-        }
-        gotoFirstFrame() {
+        };
+        FrameObject.prototype.gotoFirstFrame = function () {
             this.currentFrame = 0;
             return this;
-        }
-        gotoLastFrame() {
+        };
+        FrameObject.prototype.gotoLastFrame = function () {
             this.currentFrame = this.totalFrames - 1;
             return this;
-        }
-        gotoRandomFrame() {
+        };
+        FrameObject.prototype.gotoRandomFrame = function () {
             this.currentFrame = (Math.random() * this.totalFrames) | 0;
             return this;
-        }
-        isFirstFrame() {
+        };
+        FrameObject.prototype.isFirstFrame = function () {
             return this.currentFrame == 0;
-        }
-        isLastFrame() {
+        };
+        FrameObject.prototype.isLastFrame = function () {
             return this.currentFrame == this.totalFrames - 1;
-        }
-    }
+        };
+        return FrameObject;
+    }(fl.FlashObject));
     fl.FrameObject = FrameObject;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class Resource {
-        constructor(id) {
+    var Resource = (function () {
+        function Resource(id) {
             this._id = id;
         }
-        createInstance() {
+        Resource.prototype.createInstance = function () {
             throw new Error("Not implemented");
-        }
-        dispose() {
+        };
+        Resource.prototype.dispose = function () {
             throw new Error("Not implemented");
-        }
-        get id() {
-            return this._id;
-        }
-        get name() {
-            var id = this._id;
-            return id.substr(id.lastIndexOf("/") + 1);
-        }
-    }
+        };
+        Object.defineProperty(Resource.prototype, "id", {
+            get: function () {
+                return this._id;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Resource.prototype, "name", {
+            get: function () {
+                var id = this._id;
+                return id.substr(id.lastIndexOf("/") + 1);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Resource;
+    }());
     fl.Resource = Resource;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class PlaceholderResource extends fl.Resource {
-        constructor(id) {
-            super(id);
+    var PlaceholderResource = (function (_super) {
+        __extends(PlaceholderResource, _super);
+        function PlaceholderResource(id) {
+            return _super.call(this, id) || this;
         }
-        createInstance() {
+        PlaceholderResource.prototype.createInstance = function () {
             return new fl.Placeholder();
-        }
-        dispose() {
-        }
-    }
+        };
+        PlaceholderResource.prototype.dispose = function () {
+        };
+        return PlaceholderResource;
+    }(fl.Resource));
     fl.PlaceholderResource = PlaceholderResource;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class SpriteFrame {
-    }
+    var SpriteFrame = (function () {
+        function SpriteFrame() {
+        }
+        return SpriteFrame;
+    }());
     fl.SpriteFrame = SpriteFrame;
-    class SpriteResource extends fl.Resource {
-        static fromJson(data, texture) {
+    var SpriteResource = (function (_super) {
+        __extends(SpriteResource, _super);
+        function SpriteResource() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        SpriteResource.fromJson = function (data, texture) {
             var id = data.path;
             var res = new SpriteResource(id);
             res.texture = texture;
@@ -479,23 +531,28 @@ var fl;
                 res.frames.push(frame);
             }
             return res;
-        }
-        createInstance() {
+        };
+        SpriteResource.prototype.createInstance = function () {
             return new fl.Sprite(this);
-        }
-        dispose() {
+        };
+        SpriteResource.prototype.dispose = function () {
             this.texture.destroy(false);
             delete this.texture;
             delete this.frames;
             delete this.labels;
-        }
-    }
+        };
+        return SpriteResource;
+    }(fl.Resource));
     fl.SpriteResource = SpriteResource;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class ClipResource extends fl.Resource {
-        static fromJson(data) {
+    var ClipResource = (function (_super) {
+        __extends(ClipResource, _super);
+        function ClipResource() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        ClipResource.fromJson = function (data) {
             var id = data.path;
             var r = new ClipResource(id);
             r.resources = data.resources;
@@ -503,8 +560,8 @@ var fl;
             r.frames = ClipResource.readFrames(data.frames, r.instances.length);
             r.labels = data.labels;
             return r;
-        }
-        static readInstances(data) {
+        };
+        ClipResource.readInstances = function (data) {
             var instances = [];
             for (var i = 0; i < data.length; i++) {
                 var props = data[i];
@@ -514,16 +571,16 @@ var fl;
                 instances[i] = inst;
             }
             return instances;
-        }
-        static readFrames(data, totalInstCount) {
+        };
+        ClipResource.readFrames = function (data, totalInstCount) {
             var framesCount = data.length;
             var frames = [];
             for (var i = 0; i < framesCount; i++) {
                 frames[i] = ClipResource.readFrame(data[i], totalInstCount);
             }
             return frames;
-        }
-        static readFrame(data, totalInstCount) {
+        };
+        ClipResource.readFrame = function (data, totalInstCount) {
             var frame = new FrameData();
             frame.existingInstancesBits = [];
             for (var i = 0; i < totalInstCount; i++) {
@@ -537,8 +594,8 @@ var fl;
                 frame.existingInstancesBits[instance.id] = true;
             }
             return frame;
-        }
-        static readInstance(data) {
+        };
+        ClipResource.readInstance = function (data) {
             var props = new ChildProps();
             props.id = data[0];
             props.position = new PIXI.Point(data[1], data[2]);
@@ -556,37 +613,44 @@ var fl;
                 props.matrix.ty = matrixData[5];
             }
             return props;
-        }
-        createInstance() {
+        };
+        ClipResource.prototype.createInstance = function () {
             return new fl.Clip(this);
-        }
-        getChildResource(childIndex) {
+        };
+        ClipResource.prototype.getChildResource = function (childIndex) {
             var resIndex = this.instances[childIndex].resIndex;
             return this.resources[resIndex];
-        }
-        dispose() {
+        };
+        ClipResource.prototype.dispose = function () {
             delete this.resources;
             delete this.instances;
             delete this.frames;
             delete this.labels;
-        }
-    }
+        };
+        return ClipResource;
+    }(fl.Resource));
     fl.ClipResource = ClipResource;
-    class FrameData {
-        containsIndex(id) {
+    var FrameData = (function () {
+        function FrameData() {
+        }
+        FrameData.prototype.containsIndex = function (id) {
             return id >= 0
                 && id < this.existingInstancesBits.length
                 && this.existingInstancesBits[id];
+        };
+        FrameData.EMPTY_LABELS = [];
+        return FrameData;
+    }());
+    var ChildInfo = (function () {
+        function ChildInfo() {
         }
-    }
-    FrameData.EMPTY_LABELS = [];
-    class ChildInfo {
-    }
-    class ChildProps {
-        constructor() {
+        return ChildInfo;
+    }());
+    var ChildProps = (function () {
+        function ChildProps() {
             this.matrixChecked = false;
         }
-        applyTo(target) {
+        ChildProps.prototype.applyTo = function (target) {
             var x = this.position.x;
             var y = this.position.y;
             var text = target;
@@ -609,25 +673,26 @@ var fl;
                 this.matrixChecked = true;
             }
             target.matrix = this.matrix;
-        }
-    }
+        };
+        return ChildProps;
+    }());
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class Bundle {
-        constructor(name) {
+    var Bundle = (function () {
+        function Bundle(name) {
             this.textures = {};
             this.resources = {};
             this.name = name;
         }
-        static createPlaceholders() {
+        Bundle.createPlaceholders = function () {
             var bundle = new Bundle("placeholders");
             bundle.resources["placeholders/empty"] = new fl.PlaceholderResource("placeholders/empty");
             return bundle;
-        }
-        static loadAll(bundleNames, onComplete) {
-            let i = 0;
-            let loadNext = () => {
+        };
+        Bundle.loadAll = function (bundleNames, onComplete) {
+            var i = 0;
+            var loadNext = function () {
                 if (i < bundleNames.length) {
                     Bundle.load(bundleNames[i], loadNext);
                     i++;
@@ -637,8 +702,8 @@ var fl;
                 }
             };
             loadNext();
-        }
-        static load(bundleName, onComplete) {
+        };
+        Bundle.load = function (bundleName, onComplete) {
             console.log("Bundle.load: " + bundleName);
             var bundle = Bundle._bundles[bundleName];
             if (bundle)
@@ -646,16 +711,16 @@ var fl;
             bundle = new Bundle(bundleName);
             Bundle._bundles[bundleName] = bundle;
             bundle.load(onComplete);
-        }
-        static unload(bundleName) {
+        };
+        Bundle.unload = function (bundleName) {
             console.log("Bundle.unload: " + bundleName);
             var bundle = Bundle._bundles[bundleName];
             if (!bundle)
                 throw new Error("Bundle is not loaded: " + bundleName);
             delete Bundle._bundles[bundleName];
             bundle.unload();
-        }
-        static getResource(resourceId) {
+        };
+        Bundle.getResource = function (resourceId) {
             var bundleId = resourceId.substr(0, resourceId.indexOf('/'));
             var bundle = Bundle._bundles[bundleId];
             if (!bundle)
@@ -664,8 +729,8 @@ var fl;
             if (res == null)
                 throw new Error('Resource not found: ' + resourceId);
             return res;
-        }
-        static createFlashObject(id) {
+        };
+        Bundle.createFlashObject = function (id) {
             var res = Bundle.getResource(id);
             if (res instanceof fl.SpriteResource)
                 return new fl.Sprite(res);
@@ -673,79 +738,88 @@ var fl;
                 return new fl.Clip(res);
             else
                 throw new Error('Unknown resource type: ' + id);
-        }
-        static createSprite(id) {
+        };
+        Bundle.createSprite = function (id) {
             var res = Bundle.getResource(id);
             if (!(res instanceof fl.SpriteResource))
                 throw new Error('Resource is not a Sprite: ' + id);
             return new fl.Sprite(res);
-        }
-        static createClip(id) {
+        };
+        Bundle.createClip = function (id) {
             var res = Bundle.getResource(id);
             if (!(res instanceof fl.ClipResource))
                 throw new Error('Resource is not a Clip: ' + id);
             return new fl.Clip(res);
-        }
-        load(onComplete) {
+        };
+        Bundle.prototype.load = function (onComplete) {
             this.completeHandler = onComplete;
             this.loadResources();
-        }
-        unload() {
+        };
+        Bundle.prototype.unload = function () {
+            var _this = this;
             Object.keys(this.resources)
-                .forEach(key => this.resources[key].dispose());
+                .forEach(function (key) { return _this.resources[key].dispose(); });
             Object.keys(this.textures)
-                .forEach(key => this.textures[key].destroy(true));
+                .forEach(function (key) { return _this.textures[key].destroy(true); });
             this.resources = {};
             this.textures = {};
-        }
-        loadResources() {
-            let url = this.getUrl('bundle.json');
+        };
+        Bundle.prototype.loadResources = function () {
+            var _this = this;
+            var url = this.getUrl('bundle.json');
             this.verboseLog('loading: ' + url);
-            let loader = new PIXI.loaders.Loader();
+            var loader = new PIXI.loaders.Loader();
             loader.add('json', url);
-            loader.load((it, resources) => {
-                this.verboseLog('OK: ' + url);
-                this.rawData = resources['json'].data;
-                if (this.rawData)
-                    this.loadTextures();
+            loader.load(function (it, resources) {
+                _this.verboseLog('OK: ' + url);
+                _this.rawData = resources['json'].data;
+                if (_this.rawData)
+                    _this.loadTextures();
             });
-        }
-        loadTextures() {
+        };
+        Bundle.prototype.loadTextures = function () {
+            var _this = this;
             this.textures = {};
             var names = this.rawData["textures"];
             if (names.length > 0) {
                 var loader = new PIXI.loaders.Loader;
-                for (let textureName of names) {
-                    var url = this.getUrl(textureName + Bundle.textureExt);
-                    this.verboseLog('loading: ' + url);
-                    loader.add(textureName, url, null, () => {
-                        this.textures[textureName] = loader.resources[textureName].texture;
-                        this.verboseLog("OK: " + textureName);
+                var _loop_1 = function (textureName) {
+                    url = this_1.getUrl(textureName + Bundle.textureExt);
+                    this_1.verboseLog('loading: ' + url);
+                    loader.add(textureName, url, null, function () {
+                        _this.textures[textureName] = loader.resources[textureName].texture;
+                        _this.verboseLog("OK: " + textureName);
                     });
+                };
+                var this_1 = this, url;
+                for (var _i = 0, names_1 = names; _i < names_1.length; _i++) {
+                    var textureName = names_1[_i];
+                    _loop_1(textureName);
                 }
-                loader.load(() => {
-                    this.createResources();
-                    this.complete();
+                loader.load(function () {
+                    _this.createResources();
+                    _this.complete();
                 });
             }
             else {
                 this.createResources();
                 this.complete();
             }
-        }
-        complete() {
+        };
+        Bundle.prototype.complete = function () {
             this.rawData = null;
             if (this.completeHandler != null)
                 this.completeHandler();
-        }
-        createResources() {
+        };
+        Bundle.prototype.createResources = function () {
             var symbols = this.rawData['symbols'];
-            for (var symbol of symbols) {
+            for (var _i = 0, symbols_1 = symbols; _i < symbols_1.length; _i++) {
+                var symbol = symbols_1[_i];
                 var id = symbol.path;
                 this.resources[id] = this.createResource(symbol);
             }
-        }
-        createResource(json) {
+        };
+        Bundle.prototype.createResource = function (json) {
             var type = json.type;
             if (type == "sprite") {
                 var textureName = json.texture;
@@ -757,49 +831,64 @@ var fl;
             if (type == "clip")
                 return fl.ClipResource.fromJson(json);
             throw new Error("Unknown resource type: " + type);
-        }
-        verboseLog(message) {
+        };
+        Bundle.prototype.verboseLog = function (message) {
             if (Bundle.verboseLog)
                 console.log("| " + message);
-        }
-        getUrl(assetName) {
-            return `${Bundle.rootPath}/${this.name}/${assetName}?v=${Bundle.version}`;
-        }
-    }
-    Bundle.version = "0";
-    Bundle.rootPath = "assets";
-    Bundle.textureExt = ".png";
-    Bundle.verboseLog = true;
-    Bundle._bundles = {
-        "placeholders": Bundle.createPlaceholders()
-    };
+        };
+        Bundle.prototype.getUrl = function (assetName) {
+            return Bundle.rootPath + "/" + this.name + "/" + assetName + "?v=" + Bundle.version;
+        };
+        Bundle.version = "0";
+        Bundle.rootPath = "assets";
+        Bundle.textureExt = ".png";
+        Bundle.verboseLog = true;
+        Bundle._bundles = {
+            "placeholders": Bundle.createPlaceholders()
+        };
+        return Bundle;
+    }());
     fl.Bundle = Bundle;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class Container extends PIXI.Container {
-        constructor() {
-            super(...arguments);
-            this.timelineIndex = -1;
-            this.labels = fl.Internal.EMPTY_ARRAY;
-            this.color = new fl.Color(1, 1, 1, 1);
-            this.isFlashObject = true;
-            this.isFrameObject = false;
-            this.scaleMultiplier = 1;
-            this.globalColor = {};
+    var Container = (function (_super) {
+        __extends(Container, _super);
+        function Container() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.timelineIndex = -1;
+            _this.labels = fl.Internal.EMPTY_ARRAY;
+            _this.color = new fl.Color(1, 1, 1, 1);
+            _this.isFlashObject = true;
+            _this.isFrameObject = false;
+            _this.scaleMultiplier = 1;
+            _this.globalColor = {};
+            return _this;
         }
-        get scaleX() { return this.scale.x * this.scaleMultiplier; }
-        set scaleX(value) { this.scale.x = value / this.scaleMultiplier; }
-        get scaleY() { return this.scale.y * this.scaleMultiplier; }
-        set scaleY(value) { this.scale.y = value / this.scaleMultiplier; }
-        get scaleXY() { return 0.5 * (this.scaleX + this.scaleY); }
-        set scaleXY(value) {
-            this.scaleX = value;
-            this.scaleY = value;
-        }
-        handleFrameChange() {
-        }
-        updateTransform() {
+        Object.defineProperty(Container.prototype, "scaleX", {
+            get: function () { return this.scale.x * this.scaleMultiplier; },
+            set: function (value) { this.scale.x = value / this.scaleMultiplier; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Container.prototype, "scaleY", {
+            get: function () { return this.scale.y * this.scaleMultiplier; },
+            set: function (value) { this.scale.y = value / this.scaleMultiplier; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Container.prototype, "scaleXY", {
+            get: function () { return 0.5 * (this.scaleX + this.scaleY); },
+            set: function (value) {
+                this.scaleX = value;
+                this.scaleY = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Container.prototype.handleFrameChange = function () {
+        };
+        Container.prototype.updateTransform = function () {
             if (!this.visible)
                 return;
             var animable = this;
@@ -822,10 +911,10 @@ var fl;
                 this.worldAlpha = this.alpha * this.parent.worldAlpha;
             }
             else {
-                super.updateTransform();
+                _super.prototype.updateTransform.call(this);
             }
-        }
-        updateColor() {
+        };
+        Container.prototype.updateColor = function () {
             var lc = this.color;
             var gc = this.globalColor;
             var parentObject = this.parent;
@@ -842,56 +931,88 @@ var fl;
                 gc.b = lc.b;
                 gc.a = lc.a;
             }
-        }
-    }
+        };
+        return Container;
+    }(PIXI.Container));
     fl.Container = Container;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class Placeholder extends fl.Container {
-        getLocalBounds() {
-            return Placeholder.predefinedBounds;
+    var Placeholder = (function (_super) {
+        __extends(Placeholder, _super);
+        function Placeholder() {
+            return _super !== null && _super.apply(this, arguments) || this;
         }
-    }
-    Placeholder.predefinedBounds = new PIXI.Rectangle(0, 0, 100, 100);
+        Placeholder.prototype.getLocalBounds = function () {
+            return Placeholder.predefinedBounds;
+        };
+        Placeholder.predefinedBounds = new PIXI.Rectangle(0, 0, 100, 100);
+        return Placeholder;
+    }(fl.Container));
     fl.Placeholder = Placeholder;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class Sprite extends PIXI.Sprite {
-        constructor(resource) {
-            super();
-            this.timelineIndex = -1;
-            this.color = new fl.Color(1, 1, 1, 1);
-            this.isFlashObject = true;
-            this.isFrameObject = true;
-            this.scaleMultiplier = 1;
-            this._currentFrame = 0;
-            this._totalFrames = 1;
-            this.labels = fl.Internal.EMPTY_ARRAY;
-            this.setResourceInternal(resource);
-            this.scaleMultiplier = resource.scale;
-            this.scaleXY = 1;
+    var Sprite = (function (_super) {
+        __extends(Sprite, _super);
+        function Sprite(resource) {
+            var _this = _super.call(this) || this;
+            _this.timelineIndex = -1;
+            _this.color = new fl.Color(1, 1, 1, 1);
+            _this.isFlashObject = true;
+            _this.isFrameObject = true;
+            _this.scaleMultiplier = 1;
+            _this._currentFrame = 0;
+            _this._totalFrames = 1;
+            _this.labels = fl.Internal.EMPTY_ARRAY;
+            _this.setResourceInternal(resource);
+            _this.scaleMultiplier = resource.scale;
+            _this.scaleXY = 1;
+            return _this;
         }
-        get scaleX() { return this.scale.x * this.scaleMultiplier; }
-        set scaleX(value) { this.scale.x = value / this.scaleMultiplier; }
-        get scaleY() { return this.scale.y * this.scaleMultiplier; }
-        set scaleY(value) { this.scale.y = value / this.scaleMultiplier; }
-        get scaleXY() { return 0.5 * (this.scaleX + this.scaleY); }
-        set scaleXY(value) { this.scaleX = value; this.scaleY = value; }
-        get totalFrames() { return this._totalFrames; }
-        get currentFrame() { return this._currentFrame; }
-        set currentFrame(value) {
-            if (this._currentFrame != value) {
-                this._currentFrame = fl.Internal.clampRange(value, 0, this._totalFrames - 1);
-                this.handleFrameChange();
-            }
-        }
-        get animation() {
-            return this._animation
-                || (this._animation = new fl.Animation(this));
-        }
-        updateTransform() {
+        Object.defineProperty(Sprite.prototype, "scaleX", {
+            get: function () { return this.scale.x * this.scaleMultiplier; },
+            set: function (value) { this.scale.x = value / this.scaleMultiplier; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Sprite.prototype, "scaleY", {
+            get: function () { return this.scale.y * this.scaleMultiplier; },
+            set: function (value) { this.scale.y = value / this.scaleMultiplier; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Sprite.prototype, "scaleXY", {
+            get: function () { return 0.5 * (this.scaleX + this.scaleY); },
+            set: function (value) { this.scaleX = value; this.scaleY = value; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Sprite.prototype, "totalFrames", {
+            get: function () { return this._totalFrames; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Sprite.prototype, "currentFrame", {
+            get: function () { return this._currentFrame; },
+            set: function (value) {
+                if (this._currentFrame != value) {
+                    this._currentFrame = fl.Internal.clampRange(value, 0, this._totalFrames - 1);
+                    this.handleFrameChange();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Sprite.prototype, "animation", {
+            get: function () {
+                return this._animation
+                    || (this._animation = new fl.Animation(this));
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Sprite.prototype.updateTransform = function () {
             if (this._animation && this._animation.isActive)
                 this.animation.update();
             fl.Internal.applyColor(this);
@@ -908,64 +1029,83 @@ var fl;
                 this.worldAlpha = this.alpha * this.parent.worldAlpha;
             }
             else {
-                super.updateTransform();
+                _super.prototype.updateTransform.call(this);
             }
-        }
-        handleFrameChange() {
+        };
+        Sprite.prototype.handleFrameChange = function () {
             var frame = this._resource.frames[this._currentFrame];
             this.anchor.set(frame.anchor.x, frame.anchor.y);
             this.texture = frame.texture;
             fl.Internal.dispatchLabels(this);
-        }
-        get resource() {
-            return this._resource;
-        }
-        set resource(value) {
-            this.setResourceInternal(value);
-            this.currentFrame = 0;
-        }
-        setResourceInternal(value) {
+        };
+        Object.defineProperty(Sprite.prototype, "resource", {
+            get: function () {
+                return this._resource;
+            },
+            set: function (value) {
+                this.setResourceInternal(value);
+                this.currentFrame = 0;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Sprite.prototype.setResourceInternal = function (value) {
             this._resource = value;
             this._totalFrames = value.frames.length;
             this._currentFrame = 0;
             this.labels = value.labels;
             this.handleFrameChange();
-        }
-        toString() {
+        };
+        Sprite.prototype.toString = function () {
             return 'Sprite[' + this._resource.id + ']';
-        }
-    }
+        };
+        return Sprite;
+    }(PIXI.Sprite));
     fl.Sprite = Sprite;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class Clip extends fl.Container {
-        constructor(resource) {
-            super();
-            this.isFrameObject = true;
-            this._currentFrame = 0;
-            this._totalFrames = 1;
-            this.autoPlayChildren = true;
-            this._instances = [];
-            this._resource = resource;
-            this._totalFrames = resource.frames.length;
-            this.labels = resource.labels;
-            this.constructChildren();
-            this.handleFrameChange();
+    var Clip = (function (_super) {
+        __extends(Clip, _super);
+        function Clip(resource) {
+            var _this = _super.call(this) || this;
+            _this.isFrameObject = true;
+            _this._currentFrame = 0;
+            _this._totalFrames = 1;
+            _this.autoPlayChildren = true;
+            _this._instances = [];
+            _this._resource = resource;
+            _this._totalFrames = resource.frames.length;
+            _this.labels = resource.labels;
+            _this.constructChildren();
+            _this.handleFrameChange();
+            return _this;
         }
-        get totalFrames() { return this._totalFrames; }
-        get currentFrame() { return this._currentFrame; }
-        set currentFrame(value) {
-            if (this._currentFrame != value) {
-                this._currentFrame = fl.Internal.clampRange(value, 0, this._totalFrames - 1);
-                this.handleFrameChange();
-            }
-        }
-        get animation() {
-            return this._animation
-                || (this._animation = new fl.Animation(this));
-        }
-        constructChildren() {
+        Object.defineProperty(Clip.prototype, "totalFrames", {
+            get: function () { return this._totalFrames; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Clip.prototype, "currentFrame", {
+            get: function () { return this._currentFrame; },
+            set: function (value) {
+                if (this._currentFrame != value) {
+                    this._currentFrame = fl.Internal.clampRange(value, 0, this._totalFrames - 1);
+                    this.handleFrameChange();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Clip.prototype, "animation", {
+            get: function () {
+                return this._animation
+                    || (this._animation = new fl.Animation(this));
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Clip.prototype.constructChildren = function () {
             var count = this._resource.instances.length;
             for (var i = 0; i < count; i++) {
                 var childName = this._resource.instances[i].name;
@@ -985,12 +1125,12 @@ var fl;
                 child.name = childName;
                 this._instances[i] = child;
             }
-        }
-        handleFrameChange() {
+        };
+        Clip.prototype.handleFrameChange = function () {
             this.updateChildren();
             fl.Internal.dispatchLabels(this);
-        }
-        updateChildren() {
+        };
+        Clip.prototype.updateChildren = function () {
             var frame = this._resource.frames[this._currentFrame];
             var childIndex = 0;
             var propsIndex = 0;
@@ -1045,8 +1185,8 @@ var fl;
                 else
                     childIndex++;
             }
-        }
-        getTimeLineItem(instanceId) {
+        };
+        Clip.prototype.getTimeLineItem = function (instanceId) {
             var instance = this._instances[instanceId];
             instance.timelineIndex = instanceId;
             if (instance.isFrameObject) {
@@ -1054,14 +1194,18 @@ var fl;
                 frameObj.currentFrame = 0;
             }
             return instance;
-        }
-        get resource() {
-            return this._resource;
-        }
-        toString() {
+        };
+        Object.defineProperty(Clip.prototype, "resource", {
+            get: function () {
+                return this._resource;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Clip.prototype.toString = function () {
             return 'Clip[' + this._resource.id + ']';
-        }
-        tryGetElement(name) {
+        };
+        Clip.prototype.tryGetElement = function (name) {
             var n = this._instances.length;
             for (var i = 0; i < n; i++) {
                 var inst = this._instances[i];
@@ -1069,100 +1213,113 @@ var fl;
                     return inst;
             }
             return null;
-        }
-        getElement(name) {
+        };
+        Clip.prototype.getElement = function (name) {
             var element = this.tryGetElement(name);
             if (element)
                 return element;
             else
                 throw new Error("Instance not found: " + name);
-        }
-        get instances() {
-            return this._instances;
-        }
-    }
+        };
+        Object.defineProperty(Clip.prototype, "instances", {
+            get: function () {
+                return this._instances;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Clip;
+    }(fl.Container));
     fl.Clip = Clip;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class Button {
-        constructor(target, action) {
+    var Button = (function () {
+        function Button(target, action) {
+            var _this = this;
             this._enabled = true;
             fl.assertPresent(target, "targetCell");
             this.content = target;
             if (action)
                 this.onRelease = action;
-            this.content.on("mousedown", (e) => {
-                this.setDownState();
-                if (this.onPress)
-                    this.onPress(this, e);
+            this.content.on("mousedown", function (e) {
+                _this.setDownState();
+                if (_this.onPress)
+                    _this.onPress(_this, e);
             });
-            this.content.on("mouseup", (e) => {
-                this.setUpState();
-                if (this.onRelease)
-                    this.onRelease(this, e);
+            this.content.on("mouseup", function (e) {
+                _this.setUpState();
+                if (_this.onRelease)
+                    _this.onRelease(_this, e);
             });
-            this.content.on("mouseupoutside", () => {
-                this.setUpState();
+            this.content.on("mouseupoutside", function () {
+                _this.setUpState();
             });
-            this.content.on("touchstart", (e) => {
-                this.setDownState();
-                if (this.onPress)
-                    this.onPress(this, e);
+            this.content.on("touchstart", function (e) {
+                _this.setDownState();
+                if (_this.onPress)
+                    _this.onPress(_this, e);
             });
-            this.content.on("touchend", (e) => {
-                this.setUpState();
-                if (this.onRelease)
-                    this.onRelease(this, e);
+            this.content.on("touchend", function (e) {
+                _this.setUpState();
+                if (_this.onRelease)
+                    _this.onRelease(_this, e);
             });
-            this.content.on("touchendoutside", () => {
-                this.setUpState();
+            this.content.on("touchendoutside", function () {
+                _this.setUpState();
             });
             this.refreshEnabledState();
         }
-        get enabled() { return this._enabled; }
-        set enabled(value) {
-            if (this._enabled != value) {
-                this._enabled = value;
-                this.refreshEnabledState();
-            }
-        }
-        refreshEnabledState() {
+        Object.defineProperty(Button.prototype, "enabled", {
+            get: function () { return this._enabled; },
+            set: function (value) {
+                if (this._enabled != value) {
+                    this._enabled = value;
+                    this.refreshEnabledState();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Button.prototype.refreshEnabledState = function () {
             this.content.interactive = this._enabled;
             this.content.buttonMode = this._enabled;
-        }
-        setDownState() {
+        };
+        Button.prototype.setDownState = function () {
             var states = this.content;
             if (states.isFlashObject) {
                 states.currentFrame = 1;
                 states.updateTransform();
             }
-        }
-        setUpState() {
+        };
+        Button.prototype.setUpState = function () {
             var states = this.content;
             if (states.isFlashObject) {
                 states.currentFrame = 0;
                 states.updateTransform();
             }
-        }
-    }
+        };
+        return Button;
+    }());
     fl.Button = Button;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class Text extends PIXI.Text {
-        constructor(text, style) {
-            super(text, style);
-            this.timelineIndex = -1;
-            this.color = new fl.Color(1, 1, 1, 1);
-            this.isFlashObject = true;
-            this.isFrameObject = false;
-            this.scaleMultiplier = 1;
-            this.isTextField = true;
-            this._xCorrection = 0;
-            this._yCorrection = 0;
+    var Text = (function (_super) {
+        __extends(Text, _super);
+        function Text(text, style) {
+            var _this = _super.call(this, text, style) || this;
+            _this.timelineIndex = -1;
+            _this.color = new fl.Color(1, 1, 1, 1);
+            _this.isFlashObject = true;
+            _this.isFrameObject = false;
+            _this.scaleMultiplier = 1;
+            _this.isTextField = true;
+            _this._xCorrection = 0;
+            _this._yCorrection = 0;
+            return _this;
         }
-        static fromData(data) {
+        Text.fromData = function (data) {
             var text = data.text || "";
             var style = {};
             style.fontFamily = data.fontName;
@@ -1202,21 +1359,34 @@ var fl;
                 field._yCorrection = 1;
             }
             return field;
-        }
-        get scaleX() { return this.scale.x * this.scaleMultiplier; }
-        set scaleX(value) { this.scale.x = value / this.scaleMultiplier; }
-        get scaleY() { return this.scale.y * this.scaleMultiplier; }
-        set scaleY(value) { this.scale.y = value / this.scaleMultiplier; }
-        get scaleXY() { return 0.5 * (this.scaleX + this.scaleY); }
-        set scaleXY(value) {
-            this.scaleX = value;
-            this.scaleY = value;
-        }
-        updateTransform() {
+        };
+        Object.defineProperty(Text.prototype, "scaleX", {
+            get: function () { return this.scale.x * this.scaleMultiplier; },
+            set: function (value) { this.scale.x = value / this.scaleMultiplier; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Text.prototype, "scaleY", {
+            get: function () { return this.scale.y * this.scaleMultiplier; },
+            set: function (value) { this.scale.y = value / this.scaleMultiplier; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Text.prototype, "scaleXY", {
+            get: function () { return 0.5 * (this.scaleX + this.scaleY); },
+            set: function (value) {
+                this.scaleX = value;
+                this.scaleY = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Text.prototype.updateTransform = function () {
             fl.Internal.applyColor(this);
-            super.updateTransform();
-        }
-    }
+            _super.prototype.updateTransform.call(this);
+        };
+        return Text;
+    }(PIXI.Text));
     fl.Text = Text;
 })(fl || (fl = {}));
 var fl;
@@ -1226,7 +1396,7 @@ var fl;
     applyMixins(fl.Sprite, fl.FlashObject);
     applyMixins(fl.Sprite, fl.FrameObject);
     function applyMixins(derived, base) {
-        Object.getOwnPropertyNames(base.prototype).forEach(name => {
+        Object.getOwnPropertyNames(base.prototype).forEach(function (name) {
             derived.prototype[name] = base.prototype[name];
         });
     }
@@ -1239,8 +1409,8 @@ var fl;
 })(fl || (fl = {}));
 var fl;
 (function (fl) {
-    class Animation {
-        constructor(target) {
+    var Animation = (function () {
+        function Animation(target) {
             this.ticksPerFrame = Animation.defaultTicksPerFrame;
             this.isActive = false;
             this._innerActive = true;
@@ -1248,10 +1418,10 @@ var fl;
             this._innerCond = undefined;
             this._target = target;
         }
-        static sendSignal(signal) {
+        Animation.sendSignal = function (signal) {
             Animation.signals[signal] = 1;
-        }
-        parseCondition(raw) {
+        };
+        Animation.prototype.parseCondition = function (raw) {
             if (this._innerCond === undefined) {
                 this._innerCond = Number(raw);
                 if (isNaN(this._innerCond)) {
@@ -1259,13 +1429,13 @@ var fl;
                     delete Animation.signals[this._innerCond];
                 }
             }
-        }
-        parseJump(raw) {
+        };
+        Animation.prototype.parseJump = function (raw) {
             this._innerJump = Number(raw) - 1;
             if (isNaN(this._innerJump))
                 this._innerJump = raw;
-        }
-        applyControlLabel(label) {
+        };
+        Animation.prototype.applyControlLabel = function (label) {
             if (label === "#stop") {
                 this._innerActive = false;
                 this.isActive = false;
@@ -1284,8 +1454,8 @@ var fl;
                 var signal = label.split("_")[1];
                 Animation.sendSignal(signal);
             }
-        }
-        updateByParent() {
+        };
+        Animation.prototype.updateByParent = function () {
             if (!this._innerActive)
                 return;
             if (this._innerJump === undefined) {
@@ -1308,11 +1478,11 @@ var fl;
                     this._target.currentFrame = this._innerJump;
                 this._innerJump = undefined;
             }
-            let innerCond = this._innerCond;
+            var innerCond = this._innerCond;
             if (typeof (innerCond) == "number" && innerCond > 0)
                 this._innerCond = innerCond - 1;
-        }
-        update() {
+        };
+        Animation.prototype.update = function () {
             if (++this._tickCounter < this.ticksPerFrame)
                 return;
             this._tickCounter = 0;
@@ -1334,62 +1504,63 @@ var fl;
                     nextFrame = 0;
                 this._target.currentFrame = nextFrame;
             }
-        }
-        playTo(endFrame) {
+        };
+        Animation.prototype.playTo = function (endFrame) {
             this._looping = false;
             this._endFrame = fl.Internal.clampRange(endFrame, 0, this._target.totalFrames - 1);
             this._step = this._endFrame > this._target.currentFrame ? 1 : -1;
             this._innerCond = undefined;
             this._innerJump = undefined;
             this.isActive = true;
-        }
-        playLoop(step) {
+        };
+        Animation.prototype.playLoop = function (step) {
             this._looping = true;
             this._step = step;
             this._innerCond = undefined;
             this._innerJump = undefined;
             this.isActive = true;
-        }
-        stop() {
+        };
+        Animation.prototype.stop = function () {
             this._innerCond = undefined;
             this._innerJump = undefined;
             this.isActive = false;
-        }
-        play() {
+        };
+        Animation.prototype.play = function () {
             this.playLoop(1);
-        }
-        playReverse() {
+        };
+        Animation.prototype.playReverse = function () {
             this.playLoop(-1);
-        }
-        playToBegin() {
+        };
+        Animation.prototype.playToBegin = function () {
             this.playTo(0);
-        }
-        playToEnd() {
+        };
+        Animation.prototype.playToEnd = function () {
             this.playTo(this._target.totalFrames - 1);
-        }
-        playFromBeginToEnd() {
+        };
+        Animation.prototype.playFromBeginToEnd = function () {
             this._target.currentFrame = 0;
             this.playToEnd();
-        }
-        playFromEndToBegin() {
+        };
+        Animation.prototype.playFromEndToBegin = function () {
             this._target.currentFrame = this._target.totalFrames - 1;
             this.playToBegin();
-        }
-        gotoAndStop(frameNum) {
+        };
+        Animation.prototype.gotoAndStop = function (frameNum) {
             this._target.currentFrame = frameNum;
             this.stop();
-        }
-        gotoAndPlay(frameNum) {
+        };
+        Animation.prototype.gotoAndPlay = function (frameNum) {
             this._target.currentFrame = frameNum;
             this.play();
-        }
-        onComplete(handler) {
+        };
+        Animation.prototype.onComplete = function (handler) {
             this._completeHandler = handler;
             return this;
-        }
-    }
-    Animation.defaultTicksPerFrame = 1;
-    Animation.signals = {};
+        };
+        Animation.defaultTicksPerFrame = 1;
+        Animation.signals = {};
+        return Animation;
+    }());
     fl.Animation = Animation;
 })(fl || (fl = {}));
 //# sourceMappingURL=main.js.map
