@@ -13,6 +13,7 @@ var app;
     function init() {
         fps_el = document.getElementById("fps_text");
         info_el = document.getElementById("info_text");
+        info_el.innerText = "info++";
         try {
             app.pixi = new PIXI.Application(800, 600, {
                 transparent: false,
