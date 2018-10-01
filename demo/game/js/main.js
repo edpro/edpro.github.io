@@ -17,8 +17,8 @@ var app;
             transparent: false,
             autoResize: false,
             autoStart: false,
-            clearBeforeRender: false,
-            forceCanvas: true,
+            clearBeforeRender: true,
+            forceCanvas: false,
         });
         rendererInfo = app.pixi.renderer.gl || app.pixi.renderer.context;
         document.body.appendChild(app.pixi.view);
