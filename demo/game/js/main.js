@@ -33,7 +33,7 @@ var app;
                 autoResize: false,
                 autoStart: false,
                 clearBeforeRender: true,
-                forceCanvas: true,
+                forceCanvas: false,
             });
         }
         catch (e) {
