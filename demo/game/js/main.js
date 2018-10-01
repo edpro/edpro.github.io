@@ -13,17 +13,27 @@ var app;
     function init() {
         fps_el = document.getElementById("fps_text");
         info_el = document.getElementById("info_text");
-        app.pixi = new PIXI.Application(800, 600, {
-            transparent: false,
-            autoResize: false,
-            autoStart: false,
-            clearBeforeRender: true,
-            forceCanvas: true,
-        });
+        try {
+            app.pixi = new PIXI.Application(800, 600, {
+                transparent: false,
+                autoResize: false,
+                autoStart: false,
+                clearBeforeRender: true,
+                forceCanvas: true,
+            });
+        }
+        catch (e) {
+            document.writeln(e);
+        }
         rendererInfo = app.pixi.renderer.gl || app.pixi.renderer.context;
         document.body.appendChild(app.pixi.view);
         adjustSize();
-        app.pixi.start();
+        try {
+            app.pixi.start();
+        }
+        catch (e) {
+            document.writeln(e);
+        }
         app.pixi.ticker.add(onUpdate);
         fl.Bundle.version = new Date().getTime().toString();
         fl.Bundle.load("demo", onBundleLoaded);
