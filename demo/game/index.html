@@ -1,17 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<title>html-games</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,user-scalable=no">
-	<title>html-games</title>
-	<link rel="stylesheet" href="css/main.css">
-	<script src="js/pixi/pixi.min.js"></script>
-	<script src="js/main.js"></script>
+	<link rel="stylesheet" href="css/main.css?v={v}">
+	<script src="js/pixi/pixi.min.js?v={v}"></script>
+	<script src="js/main.js?v={v}"></script>
 </head>
 <body>
-	<div class="fps" id="fps_text">00</div>
-	<div class="info" id="info_text">info</div>
+	<div id="root" class="root">
+		<div class="debug">
+			<div class="debug-info" id="info_text">info</div>
+			<div class="debug-fps" id="fps_text">00</div>
+				<div id="sss" style="width: 50px">
+					<svg width="100%"
+						 height="100%"
+						 viewBox="0 -200 300 300"
+					>
+						<text font-size="300" fill="red">16</text>
+					</svg>
+				</div>
+		</div>
+	</div>
 	<script>
+		app.version = "{v}";
 		app.init();
 	</script>
 </body>

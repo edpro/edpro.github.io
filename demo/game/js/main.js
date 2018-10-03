@@ -11,162 +11,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var app;
-(function (app) {
-    var _scene;
-    var _windowWidth = 0;
-    var _windowHeight = 0;
-    var _canvasWidth = 0;
-    var _canvasHeight = 0;
-    var _renderWidth = 0;
-    var _renderHeight = 0;
-    var fps_el;
-    var info_el;
-    var rendererInfo = "";
-    function init() {
-        fps_el = document.getElementById("fps_text");
-        info_el = document.getElementById("info_text");
-        info_el.innerText = "info++";
-        try {
-            app.pixi = new PIXI.Application(800, 600, {
-                transparent: false,
-                autoResize: false,
-                autoStart: false,
-                clearBeforeRender: true,
-                forceCanvas: true,
-            });
-        }
-        catch (e) {
-            document.writeln(e);
-        }
-        rendererInfo = app.pixi.renderer.gl || app.pixi.renderer.context;
-        document.body.appendChild(app.pixi.view);
-        adjustSize();
-        try {
-            app.pixi.start();
-        }
-        catch (e) {
-            document.writeln(e);
-        }
-        app.pixi.ticker.add(onUpdate);
-        fl.Bundle.version = new Date().getTime().toString();
-        fl.Bundle.load("demo", onBundleLoaded);
-    }
-    app.init = init;
-    function onBundleLoaded() {
-        _scene = new app.Demo();
-        _scene.init();
-        resizeScene();
-    }
-    function resizeScene() {
-        _scene.resize(_renderWidth, _renderHeight);
-    }
-    var _last = Date.now();
-    var _time = [];
-    function updateStats() {
-        var now = Date.now();
-        var t = now - _last;
-        _last = now;
-        _time.push(t);
-        if (_time.length < 30)
-            return;
-        var av_time = 0;
-        var max_time = 0;
-        for (var i = 0; i < _time.length; i++) {
-            av_time += _time[i];
-            if (_time[i] > max_time)
-                max_time = _time[i];
-        }
-        fps_el.innerText = "av: " + (av_time / _time.length).toFixed(1) + "\nmax: " + max_time;
-        _time.length = 0;
-    }
-    function onUpdate() {
-        updateStats();
-        adjustSize();
-        if (_scene)
-            _scene.update();
-    }
-    function adjustSize() {
-        var MAX_BUF = 1920;
-        var w = window.innerWidth;
-        var h = window.innerHeight;
-        if (w != _windowWidth || h != _windowHeight) {
-            _windowWidth = w;
-            _windowHeight = h;
-            _canvasWidth = Math.max(w, 400);
-            _canvasHeight = Math.min(h, w);
-            var dpi = window.devicePixelRatio;
-            var resolution = Math.min(dpi, 2.0);
-            _renderWidth = _canvasWidth * resolution;
-            _renderHeight = _canvasHeight * resolution;
-            if (_renderWidth > MAX_BUF) {
-                var k = MAX_BUF / _renderWidth;
-                _renderWidth = _renderWidth * k;
-                _renderHeight = _renderHeight * k;
-            }
-            _renderWidth = Math.round(_renderWidth);
-            _renderHeight = Math.round(_renderHeight);
-            app.pixi.renderer.resize(_renderWidth, _renderHeight);
-            app.pixi.view.style.width = _canvasWidth + "px";
-            app.pixi.view.style.height = _canvasHeight + "px";
-            if (_scene)
-                resizeScene();
-            var sizeInfo = "[" + _canvasWidth + " x " + _canvasHeight + "] (" + _renderWidth + " x " + _renderHeight + ")";
-            console.log("resize: " + sizeInfo);
-            info_el.innerText = window.navigator.userAgent + "\ndpi: " + dpi + " " + sizeInfo + " " + rendererInfo;
-        }
-    }
-})(app || (app = {}));
-var app;
-(function (app) {
-    var BASE_WIDTH = 1024;
-    var BASE_HEIGHT = 768;
-    var Demo = (function () {
-        function Demo() {
-            this.speed = 4;
-            this.width = BASE_WIDTH;
-            this.height = BASE_HEIGHT;
-            this.places = [];
-        }
-        Demo.prototype.init = function () {
-            this.bg = fl.Bundle.createSprite("demo/bg");
-            app.pixi.stage.addChild(this.bg);
-            this.hero = fl.Bundle.createSprite("demo/hero");
-            app.pixi.stage.addChild(this.hero);
-            for (var i = 0; i < 3; i++) {
-                var place = fl.Bundle.createSprite("demo/ground");
-                app.pixi.stage.addChild(place);
-                this.places.push(place);
-            }
-            this.sprite = fl.Bundle.createSprite("demo/digit_2");
-            this.sprite.x = 200;
-            this.sprite.y = 200;
-            app.pixi.stage.addChild(this.sprite);
-        };
-        Demo.prototype.update = function () {
-            this.sprite.x += this.speed;
-            if (this.speed > 0 && this.sprite.x > 400)
-                this.speed = -this.speed;
-            if (this.speed < 0 && this.sprite.x < 200)
-                this.speed = -this.speed;
-            for (var i = 0; i < 3; i++) {
-                var place = this.places[i];
-                place.x = 500 + i * 300 - this.sprite.x;
-                place.y = this.height;
-            }
-            this.hero.x = 200;
-            this.hero.y = this.height - 200 - this.sprite.x;
-        };
-        Demo.prototype.resize = function (width, height) {
-            this.width = width;
-            this.height = height;
-            this.bg.width = width;
-            this.bg.height = height;
-        };
-        return Demo;
-    }());
-    app.Demo = Demo;
-})(app || (app = {}));
 function jsx(tag, attrs, children) {
     var element = document.createElement(tag);
     for (var name_1 in attrs) {
@@ -187,6 +31,140 @@ function jsx(tag, attrs, children) {
     }
     return element;
 }
+var app;
+(function (app) {
+    var ui;
+    (function (ui) {
+        function setSize(el, width, height) {
+            el.style.width = width + "px";
+            el.style.height = height + "px";
+        }
+        ui.setSize = setSize;
+        function img(src) {
+            src += "?v=" + app.version;
+            var img = jsx("img", { src: src, draggable: "false" });
+            img.style.width = "100%";
+            img.style.width = "100%";
+            return img;
+        }
+        ui.img = img;
+        function fitSize(target, width, height, baseWidth, baseHeight) {
+            var mw = width / baseWidth;
+            var mh = height / baseHeight;
+            var w = 0;
+            var h = 0;
+            if (mw > mh) {
+                h = height;
+                w = baseWidth * h / baseHeight;
+            }
+            else {
+                w = width;
+                h = baseHeight * w / baseWidth;
+            }
+            setSize(target, w, h);
+        }
+        ui.fitSize = fitSize;
+    })(ui = app.ui || (app.ui = {}));
+})(app || (app = {}));
+var app;
+(function (app) {
+    var format;
+    (function (format) {
+        function timeMMSS(value) {
+            var minutes = Math.floor(value % 60);
+            var seconds = value - minutes * 60;
+            var result = "";
+            if (minutes < 10)
+                result += 0;
+            result += minutes;
+            result += ":";
+            if (seconds < 10)
+                result += 0;
+            result += seconds;
+            return result;
+        }
+        format.timeMMSS = timeMMSS;
+    })(format = app.format || (app.format = {}));
+})(app || (app = {}));
+var app;
+(function (app) {
+    app.version = new Date().getTime().toString();
+    var scene;
+    var fpsEl;
+    var infoEl;
+    var stats = {
+        av_time: 0,
+        max_time: 0,
+    };
+    function init() {
+        fpsEl = document.getElementById("fps_text");
+        infoEl = document.getElementById("info_text");
+        app.root = document.getElementById("root");
+        adjustSize();
+        updateStatus();
+        update();
+        fl.Bundle.version = app.version;
+        fl.Bundle.load("demo", onBundleLoaded);
+    }
+    app.init = init;
+    function onBundleLoaded() {
+        scene = new app.HexGame();
+        app.root.appendChild(scene.html);
+        scene.init();
+        resizeScene();
+    }
+    function resizeScene() {
+        scene.resize();
+    }
+    var _last = Date.now();
+    var _time = [];
+    function updateStats() {
+        var now = Date.now();
+        var t = now - _last;
+        _last = now;
+        _time.push(t);
+        if (_time.length < 30)
+            return;
+        var sum_time = 0;
+        var max_time = 0;
+        for (var i = 0; i < _time.length; i++) {
+            sum_time += _time[i];
+            if (_time[i] > max_time)
+                max_time = _time[i];
+        }
+        stats.av_time = sum_time / _time.length;
+        stats.max_time = max_time;
+        updateStatus();
+        _time.length = 0;
+    }
+    function updateStatus() {
+        var av = stats.av_time.toFixed(1);
+        var max = stats.max_time.toFixed(1);
+        fpsEl.innerText = "av: " + av + "\nmax: " + max;
+    }
+    function update() {
+        requestAnimationFrame(update);
+        updateStats();
+        adjustSize();
+        if (scene)
+            scene.update();
+    }
+    var _rootWidth = -1;
+    var _rootHeight = -1;
+    function adjustSize() {
+        var w = app.root.offsetWidth;
+        var h = app.root.offsetHeight;
+        if (w != _rootWidth || h != _rootHeight) {
+            _rootWidth = w;
+            _rootHeight = h;
+            if (scene)
+                scene.resize();
+            var sizeInfo = "[" + _rootWidth + " x " + _rootHeight + "]";
+            console.log("resize: " + sizeInfo);
+            infoEl.innerText = window.navigator.userAgent + "\n" + sizeInfo;
+        }
+    }
+})(app || (app = {}));
 var fl;
 (function (fl) {
     var Anchor = (function () {
@@ -1563,4 +1541,126 @@ var fl;
     }());
     fl.Animation = Animation;
 })(fl || (fl = {}));
+var app;
+(function (app) {
+    var SideView = (function () {
+        function SideView() {
+            this.turnImage = app.ui.img("assets/demo/turn_a.png");
+            this.turnLabel = jsx("div", { class: "game-turn-text" }, "12");
+            this.pointsLabel = jsx("div", { class: "game-score-text" }, "1234");
+            this.countLabel = jsx("div", { class: "game-score-text" }, "1234");
+            this.timeLabel = jsx("div", { class: "game-time-text" }, "12:34");
+            this.html = jsx("div", { class: "game-side" },
+                jsx("div", { class: "game-turn" },
+                    this.turnImage,
+                    this.turnLabel),
+                jsx("div", { class: "game-score" },
+                    app.ui.img("assets/demo/points_icon.png"),
+                    this.pointsLabel,
+                    app.ui.img("assets/demo/count_icon.png"),
+                    this.countLabel),
+                jsx("div", { class: "game-avatar" },
+                    app.ui.img("assets/demo/avatar.png"),
+                    this.timeLabel));
+        }
+        SideView.prototype.refresh = function (player) {
+            this.turnLabel.innerText = player.currentTurn.toString();
+            this.pointsLabel.innerText = player.points.toString();
+            this.countLabel.innerText = player.count.toString();
+            this.timeLabel.innerText = app.format.timeMMSS(player.time);
+        };
+        return SideView;
+    }());
+    app.SideView = SideView;
+})(app || (app = {}));
+var app;
+(function (app) {
+    var ROWS = 10;
+    var COLS = 12;
+    var CELL_W = 64;
+    var CELL_H = 55.45;
+    var CELL_X = 10;
+    var CELL_Y = 12;
+    var GAME_W = 1280;
+    var GAME_H = 720;
+    var CANVAS_W = 820;
+    var CANVAS_H = 600;
+    function getX(i, j) {
+        if (i % 2)
+            return CELL_X + CELL_W * (j + 0.5);
+        else
+            return CELL_X + CELL_W * j;
+    }
+    function getY(i) {
+        return CELL_Y + CELL_H * i;
+    }
+    var Player = (function () {
+        function Player() {
+            this.currentTurn = 0;
+            this.count = 0;
+            this.points = 0;
+            this.time = 0;
+        }
+        return Player;
+    }());
+    app.Player = Player;
+    var HexGame = (function () {
+        function HexGame() {
+            this.left = new app.SideView();
+            this.right = new app.SideView();
+            this.center = jsx("div", { class: "game-center" });
+            this.html = jsx("div", { class: "game" },
+                this.left.html,
+                this.center,
+                this.right.html);
+            this.playerA = new Player();
+            this.playerB = new Player();
+            this.pixi = new PIXI.Application(CANVAS_W, CANVAS_H, {
+                transparent: false,
+                autoResize: false,
+                autoStart: false,
+                clearBeforeRender: true,
+                backgroundColor: 0xf2f5d5,
+                forceCanvas: true,
+            });
+        }
+        HexGame.prototype.init = function () {
+            this.left.turnImage.src = "assets/demo/turn_a.png";
+            this.right.turnImage.src = "assets/demo/turn_b.png";
+            this.center.appendChild(this.pixi.view);
+            for (var i = 0; i < ROWS; i++) {
+                for (var j = 0; j < COLS; j++) {
+                    var cell = fl.Bundle.createSprite("demo/cell_0");
+                    cell.x = getX(i, j);
+                    cell.y = getY(i);
+                    this.pixi.stage.addChild(cell);
+                }
+            }
+            this.refresh();
+        };
+        HexGame.prototype.refresh = function () {
+            this.left.refresh(this.playerA);
+            this.right.refresh(this.playerB);
+        };
+        HexGame.prototype.update = function () {
+            this.pixi.render();
+        };
+        HexGame.prototype.resize = function () {
+            app.ui.fitSize(this.html, app.root.offsetWidth, app.root.offsetHeight, GAME_W, GAME_H);
+            var canvas = this.pixi.view;
+            app.ui.fitSize(canvas, this.center.offsetWidth, app.root.offsetHeight, CANVAS_W, CANVAS_H);
+            var canvasWidth = canvas.offsetWidth;
+            var canvasHeight = canvas.offsetHeight;
+            var dpi = window.devicePixelRatio;
+            var renderWidth = Math.floor(canvasWidth * dpi);
+            var renderHeight = Math.floor(canvasHeight * dpi);
+            this.pixi.renderer.resize(renderWidth, renderHeight);
+            var scale = renderWidth / CANVAS_W;
+            this.pixi.stage.scale.x = scale;
+            this.pixi.stage.scale.y = scale;
+        };
+        return HexGame;
+    }());
+    app.HexGame = HexGame;
+})(app || (app = {}));
 //# sourceMappingURL=main.js.map
