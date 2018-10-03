@@ -42,7 +42,7 @@ var app;
         ui.setSize = setSize;
         function img(src) {
             src += "?v=" + app.version;
-            var img = jsx("img", { src: src, draggable: "false" });
+            var img = jsx("img", { src: src });
             img.style.width = "100%";
             img.style.width = "100%";
             return img;
@@ -100,6 +100,9 @@ var app;
         fpsEl = document.getElementById("fps_text");
         infoEl = document.getElementById("info_text");
         app.root = document.getElementById("root");
+        document.addEventListener('dragstart', function (e) {
+            e.preventDefault();
+        });
         adjustSize();
         updateStatus();
         update();

@@ -3,16 +3,13 @@
   /*outline: #ccc solid 1px;*/
 }
 
-img {
-  user-select: none;
-}
-
 body {
   margin: 0;
   padding: 0;
   overflow: hidden;
   background: #f2f5d5;
   user-select: none;
+  -moz-user-select: none;
 }
 
 .root {
