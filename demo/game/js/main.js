@@ -41,6 +41,7 @@ var app;
         }
         ui.setSize = setSize;
         function img(src) {
+            src += "?v=" + app.version;
             var img = jsx("img", { src: src, draggable: "false" });
             img.style.width = "100%";
             img.style.width = "100%";
