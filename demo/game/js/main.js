@@ -1543,38 +1543,6 @@ var fl;
 })(fl || (fl = {}));
 var app;
 (function (app) {
-    var SideView = (function () {
-        function SideView() {
-            this.turnImage = app.ui.img("assets/demo/turn_a.png");
-            this.turnLabel = jsx("div", { class: "game-turn-text" }, "12");
-            this.pointsLabel = jsx("div", { class: "game-score-text" }, "1234");
-            this.countLabel = jsx("div", { class: "game-score-text" }, "1234");
-            this.timeLabel = jsx("div", { class: "game-time-text" }, "12:34");
-            this.html = jsx("div", { class: "game-side" },
-                jsx("div", { class: "game-turn" },
-                    this.turnImage,
-                    this.turnLabel),
-                jsx("div", { class: "game-score" },
-                    app.ui.img("assets/demo/points_icon.png"),
-                    this.pointsLabel,
-                    app.ui.img("assets/demo/count_icon.png"),
-                    this.countLabel),
-                jsx("div", { class: "game-avatar" },
-                    app.ui.img("assets/demo/avatar.png"),
-                    this.timeLabel));
-        }
-        SideView.prototype.refresh = function (player) {
-            this.turnLabel.innerText = player.currentTurn.toString();
-            this.pointsLabel.innerText = player.points.toString();
-            this.countLabel.innerText = player.count.toString();
-            this.timeLabel.innerText = app.format.timeMMSS(player.time);
-        };
-        return SideView;
-    }());
-    app.SideView = SideView;
-})(app || (app = {}));
-var app;
-(function (app) {
     var ROWS = 10;
     var COLS = 12;
     var CELL_W = 64;
@@ -1662,5 +1630,52 @@ var app;
         return HexGame;
     }());
     app.HexGame = HexGame;
+})(app || (app = {}));
+var app;
+(function (app) {
+    function svgText(text) {
+        var svgNS = "http://www.w3.org/2000/svg";
+        var svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("viewBox", "0 0 100 100");
+        var textEl = document.createElementNS(svgNS, "text");
+        textEl.setAttribute("font-size", "80");
+        textEl.setAttribute("fill", "#fff");
+        textEl.setAttribute("text-anchor", "middle");
+        textEl.setAttribute("x", "50%");
+        textEl.setAttribute("y", "84");
+        textEl.textContent = text;
+        svg.appendChild(textEl);
+        return svg;
+    }
+    var SideView = (function () {
+        function SideView() {
+            this.turnImage = app.ui.img("assets/demo/turn_a.png");
+            this.turnLabelSvg = svgText("12");
+            this.turnLabelText = this.turnLabelSvg.getElementsByTagName("text")[0];
+            this.pointsLabel = jsx("div", { class: "game-score-text" }, "1234");
+            this.countLabel = jsx("div", { class: "game-score-text" }, "1234");
+            this.timeLabel = jsx("div", { class: "game-time-text" }, "12:34");
+            this.html = jsx("div", { class: "game-side" },
+                jsx("div", { class: "game-turn" },
+                    this.turnImage,
+                    jsx("div", { class: "game-turn-label" }, this.turnLabelSvg)),
+                jsx("div", { class: "game-score" },
+                    app.ui.img("assets/demo/points_icon.png"),
+                    this.pointsLabel,
+                    app.ui.img("assets/demo/count_icon.png"),
+                    this.countLabel),
+                jsx("div", { class: "game-avatar" },
+                    app.ui.img("assets/demo/avatar.png"),
+                    this.timeLabel));
+        }
+        SideView.prototype.refresh = function (player) {
+            this.turnLabelText.textContent = player.currentTurn.toString();
+            this.pointsLabel.innerText = player.points.toString();
+            this.countLabel.innerText = player.count.toString();
+            this.timeLabel.innerText = app.format.timeMMSS(player.time);
+        };
+        return SideView;
+    }());
+    app.SideView = SideView;
 })(app || (app = {}));
 //# sourceMappingURL=main.js.map
