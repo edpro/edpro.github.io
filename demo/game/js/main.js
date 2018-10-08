@@ -64,6 +64,10 @@ var app;
             setSize(target, w, h);
         }
         ui.fitSize = fitSize;
+        function setBlockVisible(el, visible) {
+            el.style.display = visible ? "block" : "none";
+        }
+        ui.setBlockVisible = setBlockVisible;
     })(ui = app.ui || (app.ui = {}));
 })(app || (app = {}));
 var app;
@@ -1300,6 +1304,11 @@ var fl;
             _this._yCorrection = 0;
             return _this;
         }
+        Text.prototype._renderCanvas = function (renderer) {
+            this.resolution = Text.resolution;
+            this.updateText(true);
+            PIXI.Sprite.prototype["_renderCanvas"].call(this, renderer);
+        };
         Text.fromData = function (data) {
             var text = data.text || "";
             var style = {};
@@ -1366,6 +1375,7 @@ var fl;
             fl.Internal.applyColor(this);
             _super.prototype.updateTransform.call(this);
         };
+        Text.resolution = 1;
         return Text;
     }(PIXI.Text));
     fl.Text = Text;
@@ -1546,6 +1556,8 @@ var fl;
 })(fl || (fl = {}));
 var app;
 (function (app) {
+    var MIN_POINTS = 1;
+    var MAX_POINTS = 19;
     var ROWS = 10;
     var COLS = 12;
     var CELL_W = 64;
@@ -1565,16 +1577,53 @@ var app;
     function getY(i) {
         return CELL_Y + CELL_H * i;
     }
+    function getRow(y) {
+        var dy = -CELL_Y - 0.3 * CELL_H;
+        return Math.floor((y + dy) / CELL_H);
+    }
+    function getCol(x, row) {
+        var dx = (row % 2 == 0)
+            ? -CELL_X
+            : -CELL_X - 0.5 * CELL_W;
+        return Math.floor((x + dx) / CELL_W);
+    }
     var Player = (function () {
-        function Player() {
-            this.currentTurn = 0;
+        function Player(viewFrame) {
+            this.isActive = false;
+            this.availablePoints = 0;
             this.count = 0;
             this.points = 0;
             this.time = 0;
+            this.viewFrame = viewFrame;
         }
         return Player;
     }());
     app.Player = Player;
+    var Cell = (function () {
+        function Cell() {
+            this.row = 0;
+            this.col = 0;
+            this.points = 0;
+        }
+        Cell.prototype.reset = function () {
+            this.owner = null;
+            this.points = 0;
+        };
+        Object.defineProperty(Cell.prototype, "label", {
+            get: function () {
+                return this.view.getChildByName("mc_label");
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Cell.prototype.refresh = function () {
+            this.label.visible = Boolean(this.owner);
+            this.label.text = this.points.toString();
+            this.view.currentFrame = this.owner ? this.owner.viewFrame : 0;
+        };
+        return Cell;
+    }());
+    app.Cell = Cell;
     var HexGame = (function () {
         function HexGame() {
             this.left = new app.SideView();
@@ -1584,8 +1633,9 @@ var app;
                 this.left.html,
                 this.center,
                 this.right.html);
-            this.playerA = new Player();
-            this.playerB = new Player();
+            this.playerA = new Player(1);
+            this.playerB = new Player(2);
+            this.cells = [];
             this.pixi = new PIXI.Application(CANVAS_W, CANVAS_H, {
                 transparent: false,
                 autoResize: false,
@@ -1594,20 +1644,62 @@ var app;
                 backgroundColor: 0xf2f5d5,
                 forceCanvas: true,
             });
+            this._mouseX = 0;
+            this._mouseY = 0;
         }
         HexGame.prototype.init = function () {
+            var _this = this;
+            this.pixi.stage.interactive = true;
+            this.pixi.stage.on("mousemove", function (e) { return _this.onMouseMove(e); });
+            this.pixi.stage.on("pointerdown", function (e) { return _this.onCellPress(e); });
             this.left.turnImage.src = "assets/demo/turn_a.png";
             this.right.turnImage.src = "assets/demo/turn_b.png";
             this.center.appendChild(this.pixi.view);
+            this.createCells();
+            this.createCellPointer();
+            this.nextTurn();
+            this.refresh();
+        };
+        HexGame.prototype.nextTurn = function () {
+            if (this.activePlayer)
+                this.activePlayer.isActive = false;
+            if (this.activePlayer == this.playerA)
+                this.activePlayer = this.playerB;
+            else
+                this.activePlayer = this.playerA;
+            this.activePlayer.availablePoints = app.math.randomIntRange(MIN_POINTS, MAX_POINTS);
+            this.activePlayer.isActive = true;
+        };
+        HexGame.prototype.createCells = function () {
             for (var i = 0; i < ROWS; i++) {
+                this.cells[i] = [];
                 for (var j = 0; j < COLS; j++) {
-                    var cell = fl.Bundle.createSprite("demo/cell_0");
-                    cell.x = getX(i, j);
-                    cell.y = getY(i);
-                    this.pixi.stage.addChild(cell);
+                    var cell = new Cell();
+                    cell.row = i;
+                    cell.col = j;
+                    cell.view = fl.Bundle.createClip("demo/cell");
+                    cell.view.x = getX(i, j);
+                    cell.view.y = getY(i);
+                    cell.reset();
+                    cell.refresh();
+                    this.pixi.stage.addChild(cell.view);
+                    this.cells[i][j] = cell;
                 }
             }
-            this.refresh();
+        };
+        HexGame.prototype.createCellPointer = function () {
+            this.cellPointer = fl.Bundle.createSprite("demo/cell_sel");
+            this.cellPointer.visible = false;
+            this.pixi.stage.addChild(this.cellPointer);
+        };
+        HexGame.prototype.findCell = function (x, y) {
+            var row = getRow(y);
+            var col = getCol(x, row);
+            if (row < 0 || row >= ROWS)
+                return null;
+            if (col < 0 || col >= COLS)
+                return null;
+            return this.cells[row][col];
         };
         HexGame.prototype.refresh = function () {
             this.left.refresh(this.playerA);
@@ -1615,6 +1707,91 @@ var app;
         };
         HexGame.prototype.update = function () {
             this.pixi.render();
+            this.updateMouse();
+        };
+        HexGame.prototype.updateMouse = function () {
+            var cell = this.findCell(this._mouseX, this._mouseY);
+            if (!cell) {
+                this.setCurrentCell(null);
+                return;
+            }
+            else if (cell.points > 0) {
+                this.setCurrentCell(null);
+                return;
+            }
+            else if (cell != this.currentCell) {
+                this.setCurrentCell(cell);
+            }
+        };
+        HexGame.prototype.setCurrentCell = function (cell) {
+            this.currentCell = cell;
+            if (cell) {
+                this.cellPointer.visible = true;
+                this.cellPointer.x = cell.view.x;
+                this.cellPointer.y = cell.view.y;
+            }
+            else {
+                this.cellPointer.visible = false;
+            }
+        };
+        HexGame.prototype.tryPushCell = function (list, i, j) {
+            if (i >= 0 && i < ROWS && j >= 0 && j < COLS)
+                list.push(this.cells[i][j]);
+        };
+        HexGame.prototype.getNeighbors = function (row, col) {
+            var result = [];
+            this.tryPushCell(result, row, col - 1);
+            this.tryPushCell(result, row, col + 1);
+            var shift = row % 2;
+            this.tryPushCell(result, row - 1, col + shift - 1);
+            this.tryPushCell(result, row - 1, col + shift);
+            this.tryPushCell(result, row + 1, col + shift - 1);
+            this.tryPushCell(result, row + 1, col + shift);
+            return result;
+        };
+        HexGame.prototype.getInactivePlayer = function () {
+            return this.activePlayer == this.playerA
+                ? this.playerB
+                : this.playerA;
+        };
+        HexGame.prototype.takeCell = function (target) {
+            target.owner = this.activePlayer;
+            target.points = this.activePlayer.availablePoints;
+            this.activePlayer.points += this.activePlayer.availablePoints;
+            this.activePlayer.count += 1;
+            target.refresh();
+            var sideCells = this.getNeighbors(target.row, target.col);
+            var inactivePlayer = this.getInactivePlayer();
+            for (var _i = 0, sideCells_1 = sideCells; _i < sideCells_1.length; _i++) {
+                var cell = sideCells_1[_i];
+                if (cell.owner == this.activePlayer) {
+                    this.activePlayer.points += 1;
+                    cell.points += 1;
+                    cell.refresh();
+                }
+                else if (cell.owner == inactivePlayer && cell.points < target.points) {
+                    cell.owner = this.activePlayer;
+                    this.activePlayer.points += cell.points;
+                    this.activePlayer.count += 1;
+                    inactivePlayer.points -= cell.points;
+                    inactivePlayer.count -= 1;
+                    cell.refresh();
+                }
+            }
+        };
+        HexGame.prototype.onMouseMove = function (e) {
+            var pos = e.data.getLocalPosition(this.pixi.stage);
+            this._mouseX = pos.x;
+            this._mouseY = pos.y;
+        };
+        HexGame.prototype.onCellPress = function (e) {
+            var pos = e.data.getLocalPosition(this.pixi.stage);
+            var cell = this.findCell(pos.x, pos.y);
+            if (cell == null || cell.points > 0)
+                return;
+            this.takeCell(cell);
+            this.nextTurn();
+            this.refresh();
         };
         HexGame.prototype.resize = function () {
             app.ui.fitSize(this.html, app.root.offsetWidth, app.root.offsetHeight, GAME_W, GAME_H);
@@ -1625,10 +1802,11 @@ var app;
             var dpi = window.devicePixelRatio;
             var renderWidth = Math.floor(canvasWidth * dpi);
             var renderHeight = Math.floor(canvasHeight * dpi);
-            this.pixi.renderer.resize(renderWidth, renderHeight);
             var scale = renderWidth / CANVAS_W;
             this.pixi.stage.scale.x = scale;
             this.pixi.stage.scale.y = scale;
+            this.pixi.renderer.resize(renderWidth, renderHeight);
+            fl.Text.resolution = Math.max(dpi, dpi * scale);
         };
         return HexGame;
     }());
@@ -1672,13 +1850,29 @@ var app;
                     this.timeLabel));
         }
         SideView.prototype.refresh = function (player) {
-            this.turnLabelText.textContent = player.currentTurn.toString();
             this.pointsLabel.innerText = player.points.toString();
             this.countLabel.innerText = player.count.toString();
             this.timeLabel.innerText = app.format.timeMMSS(player.time);
+            if (player.isActive) {
+                this.turnLabelText.textContent = player.availablePoints.toString();
+                this.turnLabelText.style.display = "block";
+            }
+            else {
+                this.turnLabelText.style.display = "none";
+            }
         };
         return SideView;
     }());
     app.SideView = SideView;
+})(app || (app = {}));
+var app;
+(function (app) {
+    var math;
+    (function (math) {
+        function randomIntRange(min, max) {
+            return min + Math.floor(Math.random() * (max - min + 1));
+        }
+        math.randomIntRange = randomIntRange;
+    })(math = app.math || (app.math = {}));
 })(app || (app = {}));
 //# sourceMappingURL=main.js.map
